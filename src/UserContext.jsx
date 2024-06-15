@@ -41,11 +41,12 @@ function UserProvider({ children }) {
 
       server.on('leave-chat', (data) => {
         console.log(data);
-        toast(
-          <span>
-            <b>{data}</b> left the chat
-          </span>
-        );
+        user !== data &&
+          toast(
+            <span>
+              <b>{data}</b> left the chat
+            </span>
+          );
       });
       setSocket(server);
     },

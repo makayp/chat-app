@@ -50,7 +50,7 @@ function Message() {
         <form onSubmit={handleSubmit}>
           <input
             type='text'
-            placeholder='Type message'
+            placeholder='Enter a message'
             value={text}
             onChange={(e) => setText(e.target.value)}
           />

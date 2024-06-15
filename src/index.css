@@ -3,10 +3,11 @@
   margin: 0;
   box-sizing: border-box;
   transition: 0.3s all ease-in-out;
-  scroll-behavior: smooth;
 }
 
-* {
+html {
+  scroll-behavior: smooth;
+
   font-family: 'Roboto Mono', monospace;
 }
 
@@ -69,18 +70,18 @@ input:focus {
 }
 
 button {
-  padding: 0.6rem 0.6rem;
   background-color: rgb(79 70 229);
   border: none;
   border-radius: 3px;
   color: white;
   font-size: 1.1rem;
   margin: 10px;
-  height: 40px;
-  width: 40px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+  text-wrap: nowrap;
+  padding: 10px;
 }
 
 button:hover {
@@ -93,14 +94,14 @@ form {
 }
 
 .btn {
-  width: 25%;
+  /* width: 25%; */
   margin: 20px auto;
   font-size: 1rem;
 }
 
 .chat-room {
   display: grid;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: auto 1fr auto;
   height: 100%;
   width: 100%;
   text-align: center;
@@ -123,11 +124,6 @@ form {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  /* position: absolute;
-  top: 0;
-  left: 0;
-  right: 0; */
 }
 
 .chat-room form {
@@ -136,14 +132,11 @@ form {
   justify-content: center;
   width: 100%;
   height: 100%;
+  z-index: 50;
 
   background-color: #fff;
   padding: 5px 0;
   box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.055);
-  /* position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0; */
 }
 
 .chat-room input {
@@ -226,7 +219,6 @@ form {
 
 .message-name {
   color: #808080;
-  /* font-style: italic; */
   font-size: 14px;
   font-weight: 600;
 }
@@ -250,7 +242,6 @@ form {
   bottom: 5px;
   right: 5px;
   text-wrap: nowrap;
-  /* font-family: 'Courier New', Courier, monospace; */
 }
 
 .chat-room .exit-btn {
@@ -261,4 +252,11 @@ form {
 .chat-room .exit-btn:hover,
 button:hover {
   cursor: pointer;
+}
+
+@media only screen and (max-width: 700px) {
+  .container {
+    height: 100dvh;
+    width: 100dvh;
+  }
 }
