@@ -41,7 +41,11 @@ function UserProvider({ children }) {
 
       server.on('leave-chat', (data) => {
         console.log(data);
-        toast(data + ' left the chat');
+        toast(
+          <span>
+            <b>{data}</b> left the chat
+          </span>
+        );
       });
       setSocket(server);
     },
@@ -62,7 +66,6 @@ function UserProvider({ children }) {
   }
 
   function leaveChat() {
-    // socket.emit('leave-chat');
     socket.disconnect();
     setUser('');
   }
