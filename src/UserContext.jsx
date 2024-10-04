@@ -25,7 +25,6 @@ function UserProvider({ children }) {
 
   const initialize = useCallback(
     function () {
-      console.log(currentUser);
       const server = io(import.meta.env.VITE_SERVER_URL, {
         auth: {
           currentUser,
@@ -33,7 +32,6 @@ function UserProvider({ children }) {
       });
 
       server.on('join', (user) => {
-        console.log(user);
         currentUser !== user &&
           toast(
             <span>
@@ -77,7 +75,7 @@ function UserProvider({ children }) {
       });
       setSocket(server);
     },
-    [currentUser, isAtBottom]
+    [currentUser]
   );
 
   function typeMessage() {
@@ -129,21 +127,20 @@ function UserProvider({ children }) {
 
     const isBottom =
       container.scrollHeight - container.scrollTop === container.clientHeight;
-    console.log(isBottom);
 
     setIsAtBottom(() => isBottom);
     return isBottom;
   };
 
-  useEffect(() => {
-    const container = messageBoxRef.current;
+  // useEffect(() => {
+  //   const container = messageBoxRef.current;
 
-    container?.addEventListener('scroll', checkIfAtBottom);
+  //   container?.addEventListener('scroll', checkIfAtBottom);
 
-    return () => {
-      container?.removeEventListener('scroll', checkIfAtBottom);
-    };
-  }, [messageBoxRef.current]);
+  //   return () => {
+  //     container?.removeEventListener('scroll', checkIfAtBottom);
+  //   };
+  // }, [messageBoxRef.current]);
 
   return (
     <userContext.Provider
