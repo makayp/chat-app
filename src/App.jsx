@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import Message from './Message';
-import UserProvider from './UserContext';
-import { useNewContext } from '../newContext';
+import { useUserContext } from './UserContext';
 
 function App() {
-  const { user, setUser } = useNewContext();
+  const { currentUser, setCurrentUser } = useUserContext();
   const [name, setName] = useState('');
 
   const [error, setError] = useState(null);
@@ -15,14 +14,14 @@ function App() {
       setError('Field cannot be empty!');
       return;
     }
-    setUser(name);
+    setCurrentUser(name);
     setName('');
   }
 
   return (
     <div className='app'>
       <div className='container'>
-        {!user ? (
+        {!currentUser ? (
           <>
             <h1>Enter your name</h1>
             <form onSubmit={handleSubmit}>
@@ -41,11 +40,7 @@ function App() {
             </form>
           </>
         ) : (
-          user && (
-            <UserProvider>
-              <Message />
-            </UserProvider>
-          )
+          currentUser && <Message />
         )}
       </div>
     </div>

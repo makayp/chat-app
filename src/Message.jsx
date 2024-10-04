@@ -1,19 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IoMdSend } from 'react-icons/io';
 import { TiMessages } from 'react-icons/ti';
 import MessageItem from './MessageItem';
 import { useUserContext } from './UserContext';
 import { IoExitOutline } from 'react-icons/io5';
-import { useNewContext } from '../newContext';
+import { formatDistanceToNow } from 'date-fns';
 
 function Message() {
-  const { messages, sendMessage, scrollRef, leaveChat } = useUserContext();
-
-  const { setUser } = useNewContext();
+  const {
+    messages,
+    sendMessage,
+    scrollRef,
+    messageBoxRef,
+    leaveChat,
+    whoIsTyping,
+    typeMessage,
+    debounceTypeMessage,
+    scrollToBottom,
+  } = useUserContext();
+  const [formattedMessages, setFormattedMessages] = useState([]);
 
   const [text, setText] = useState('');
-
-  const filteredMessages = messages?.sort((a, b) => a.id - b.id);
+  const [hasTyped, setHasTyped] = useState(false);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -22,12 +30,40 @@ function Message() {
     }
     sendMessage(text);
     setText('');
+    scrollToBottom();
   }
 
-  function handleLeaveChat() {
-    leaveChat();
-    // setUser('');
+  function handleChange(e) {
+    setText(e.target.value);
+
+    if (!hasTyped) {
+      typeMessage();
+      setHasTyped(true);
+    } else {
+      debounceTypeMessage();
+    }
   }
+
+  useEffect(() => {
+    // Function to format the time
+    const formatMessageTimes = () => {
+      const updatedMessages = messages.map((message) => ({
+        ...message,
+        timeAgo: formatDistanceToNow(new Date(message.time), {
+          addSuffix: true,
+        }),
+      }));
+      setFormattedMessages(updatedMessages);
+    };
+
+    formatMessageTimes();
+
+    const intervalId = setInterval(() => {
+      formatMessageTimes();
+    }, 60000);
+
+    return () => clearInterval(intervalId);
+  }, [messages]);
 
   return (
     <div className='chat-room'>
@@ -35,24 +71,25 @@ function Message() {
         <h1>
           <TiMessages /> <span>Chat room</span>
         </h1>
-        <span className='exit-btn' onClick={handleLeaveChat}>
+        <span className='exit-btn' onClick={leaveChat}>
           <IoExitOutline />
         </span>
       </header>
 
-      <ul className='messages' ref={scrollRef}>
-        {filteredMessages?.map((message) => (
+      <ul className='messages' ref={messageBoxRef}>
+        {formattedMessages?.map((message) => (
           <MessageItem message={message} key={message.id} />
         ))}
-        <span id='scroll' className='scrollTo'></span>
+        <div id='scroll' ref={scrollRef}></div>
       </ul>
-      <div>
+      <div className='form-container'>
+        {whoIsTyping && <p className='typing'>{whoIsTyping} is typing...</p>}
         <form onSubmit={handleSubmit}>
           <input
             type='text'
             placeholder='Enter a message'
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={handleChange}
           />
           <button>
             <IoMdSend />

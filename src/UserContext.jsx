@@ -8,100 +8,157 @@ import {
 } from 'react';
 import toast from 'react-hot-toast';
 import { io } from 'socket.io-client';
-import { useNewContext } from '../newContext';
+import { useDebouncedCallback } from 'use-debounce';
 
 const userContext = createContext();
 
 function UserProvider({ children }) {
-  const { user, setUser } = useNewContext();
+  const [currentUser, setCurrentUser] = useState('');
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState();
+  const [whoIsTyping, setWhoIsTyping] = useState(null);
+
+  const [isAtBottom, setIsAtBottom] = useState(false);
+
+  const typingTimeoutRef = useRef();
+  const messageBoxRef = useRef();
 
   const initialize = useCallback(
     function () {
+      console.log(currentUser);
       const server = io(import.meta.env.VITE_SERVER_URL, {
         auth: {
-          user,
+          currentUser,
         },
       });
 
-      server.on('welcome', (data) => {
-        console.log(data);
-        user !== data &&
+      server.on('join', (user) => {
+        console.log(user);
+        currentUser !== user &&
           toast(
             <span>
-              <b>{data}</b> joined the chat!
+              <b>{user}</b> joined the chat! 👋🏼
             </span>
           );
       });
 
-      server.on('messages', (data) => {
-        setMessages(data);
+      server.on('welcome', (messages) => {
+        setMessages(messages);
+        scrollToBottom();
       });
 
-      server.on('leave-chat', (data) => {
-        console.log(data);
-        user !== data &&
-          toast(
-            <span>
-              <b>{data}</b> left the chat
-            </span>
-          );
+      server.on('typing', (user) => {
+        setWhoIsTyping(user);
+
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+        typingTimeoutRef.current = setTimeout(() => {
+          setWhoIsTyping(null);
+        }, 2000);
+      });
+
+      server.on('message', (newMessage) => {
+        setMessages((prev) => [...prev, newMessage]);
+        setWhoIsTyping(null);
+
+        const isBottom = checkIfAtBottom();
+
+        if (isBottom) {
+          scrollToBottom();
+        }
+      });
+
+      server.on('leave-chat', (username) => {
+        toast(
+          <span>
+            <b>{username}</b> left the chat 🚶🏻‍♂️‍➡️
+          </span>
+        );
       });
       setSocket(server);
     },
-    [user]
+    [currentUser, isAtBottom]
   );
+
+  function typeMessage() {
+    socket.emit('typing', currentUser);
+  }
+
+  const debounceTypeMessage = useDebouncedCallback(() => {
+    socket.emit('typing', currentUser);
+  }, 200);
 
   function sendMessage(message) {
     const newMessage = {
       id: Date.now(),
-      sender: user,
+      sender: currentUser,
       message,
       time: new Date().toISOString(),
     };
     socket.emit('message', newMessage);
 
     setMessages((prev) => [...prev, newMessage]);
-    console.log(socket);
   }
 
   function leaveChat() {
     socket.disconnect();
-    setUser('');
+    setCurrentUser('');
   }
 
   useEffect(
     function () {
-      if (!messages.length && user) {
+      if (!socket && currentUser) {
         initialize();
       }
     },
-    [initialize, messages.length, user]
+    [initialize, currentUser, socket]
   );
 
   const scrollRef = useRef();
   const scrollToBottom = () => {
     if (!scrollRef.current) return;
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    setTimeout(
+      () => scrollRef.current.scrollIntoView({ behavior: 'smooth' }),
+      10
+    );
   };
 
-  useEffect(
-    function () {
-      scrollToBottom();
-    },
-    [user, messages]
-  );
+  // Function to check if the user is at the bottom
+  const checkIfAtBottom = () => {
+    const container = messageBoxRef.current;
+
+    const isBottom =
+      container.scrollHeight - container.scrollTop === container.clientHeight;
+    console.log(isBottom);
+
+    setIsAtBottom(() => isBottom);
+    return isBottom;
+  };
+
+  useEffect(() => {
+    const container = messageBoxRef.current;
+
+    container?.addEventListener('scroll', checkIfAtBottom);
+
+    return () => {
+      container?.removeEventListener('scroll', checkIfAtBottom);
+    };
+  }, [messageBoxRef.current]);
 
   return (
     <userContext.Provider
       value={{
-        user,
+        currentUser,
+        setCurrentUser,
         messages,
         sendMessage,
         scrollRef,
+        messageBoxRef,
         scrollToBottom,
         leaveChat,
+        whoIsTyping,
+        typeMessage,
+        debounceTypeMessage,
       }}
     >
       {children}

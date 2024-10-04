@@ -1,11 +1,10 @@
 import { useUserContext } from './UserContext';
-import { calcTimeSent } from './helpers';
 
 function MessageItem({ message }) {
-  const { user } = useUserContext();
+  const { currentUser } = useUserContext();
 
-  const { sender, time, ...data } = message;
-  const yourMessage = sender === user;
+  const { sender, timeAgo, ...data } = message;
+  const yourMessage = sender === currentUser;
 
   return (
     <li
@@ -16,7 +15,7 @@ function MessageItem({ message }) {
           <span className='message-name'>{yourMessage ? 'You' : sender}</span>
           <p className='message-text'>{data.message}</p>
         </div>
-        <span className='message-time'>{calcTimeSent(time)}</span>
+        <span className='message-time'>{timeAgo}</span>
       </div>
     </li>
   );

@@ -107,6 +107,15 @@ form {
   text-align: center;
 }
 
+.chat-room .messages {
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  height: 100%;
+}
+
 .chat-room input {
   border: 1px solid rgb(79 70 229);
 }
@@ -133,6 +142,7 @@ form {
   width: 100%;
   height: 100%;
   z-index: 50;
+  position: relative;
 
   background-color: #fff;
   padding: 5px 0;
@@ -141,15 +151,6 @@ form {
 
 .chat-room input {
   background-color: rgb(252, 252, 255);
-}
-
-.chat-room .messages {
-  padding: 20px;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  overflow: scroll;
-  height: 100%;
 }
 
 .message-others .message-name {
@@ -229,6 +230,7 @@ form {
   font-size: 0.9em;
   margin: 20px 0;
   color: #616161;
+  word-wrap: break-word;
 }
 
 .message-time {
@@ -252,6 +254,22 @@ form {
 .chat-room .exit-btn:hover,
 button:hover {
   cursor: pointer;
+}
+
+.typing {
+  padding: 5px 0;
+  font-size: 0.9rem;
+  color: blueviolet;
+  position: absolute;
+  background-color: #ffffffa3;
+  bottom: 100%;
+  z-index: 5000;
+  text-align: center;
+  width: 100%;
+}
+
+.form-container {
+  position: relative;
 }
 
 @media only screen and (max-width: 700px) {
