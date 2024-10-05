@@ -15,8 +15,10 @@ const userContext = createContext();
 function UserProvider({ children }) {
   const [currentUser, setCurrentUser] = useState('');
   const [messages, setMessages] = useState([]);
-  const [socket, setSocket] = useState();
+  const [socket, setSocket] = useState(null);
   const [whoIsTyping, setWhoIsTyping] = useState(null);
+
+  const [newMessages, setNewMessages] = useState([]);
 
   const [isAtBottom, setIsAtBottom] = useState(false);
 
@@ -45,6 +47,10 @@ function UserProvider({ children }) {
         scrollToBottom();
       });
 
+      server.on('clear messages', (messages) => {
+        setMessages(messages);
+      });
+
       server.on('typing', (user) => {
         setWhoIsTyping(user);
 
@@ -63,6 +69,8 @@ function UserProvider({ children }) {
 
         if (isBottom) {
           scrollToBottom();
+        } else {
+          setNewMessages((curr) => [...curr, newMessage]);
         }
       });
 
@@ -100,13 +108,26 @@ function UserProvider({ children }) {
 
   function leaveChat() {
     socket.disconnect();
+    setSocket(null);
     setCurrentUser('');
+    setMessages([]);
   }
 
   useEffect(
     function () {
-      if (!socket && currentUser) {
+      if (isAtBottom) setNewMessages([]);
+    },
+    [isAtBottom]
+  );
+
+  useEffect(
+    function () {
+      if (!currentUser) return;
+
+      if (!socket) {
         initialize();
+      } else {
+        socket.connect();
       }
     },
     [initialize, currentUser, socket]
@@ -132,15 +153,15 @@ function UserProvider({ children }) {
     return isBottom;
   };
 
-  // useEffect(() => {
-  //   const container = messageBoxRef.current;
+  useEffect(() => {
+    const container = messageBoxRef.current;
 
-  //   container?.addEventListener('scroll', checkIfAtBottom);
+    container?.addEventListener('scroll', checkIfAtBottom);
 
-  //   return () => {
-  //     container?.removeEventListener('scroll', checkIfAtBottom);
-  //   };
-  // }, [messageBoxRef.current]);
+    return () => {
+      container?.removeEventListener('scroll', checkIfAtBottom);
+    };
+  }, [messageBoxRef.current]);
 
   return (
     <userContext.Provider
@@ -156,6 +177,7 @@ function UserProvider({ children }) {
         whoIsTyping,
         typeMessage,
         debounceTypeMessage,
+        newMessages,
       }}
     >
       {children}

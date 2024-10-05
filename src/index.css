@@ -2,12 +2,15 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+
+button,
+input {
   transition: 0.3s all ease-in-out;
 }
 
 html {
   scroll-behavior: smooth;
-
   font-family: 'Roboto Mono', monospace;
 }
 
@@ -270,6 +273,28 @@ button:hover {
 
 .form-container {
   position: relative;
+}
+
+.scroll-message {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin: 20px;
+  color: rgb(100, 126, 255);
+}
+
+.scroll-message span:first-child {
+  position: absolute;
+  bottom: 100%;
+  width: 100%;
+  font-size: 50;
+}
+
+.scroll-message span:first-child {
+  position: absolute;
+  bottom: 100%;
+  width: 100%;
+  font-size: 50;
 }
 
 @media only screen and (max-width: 700px) {

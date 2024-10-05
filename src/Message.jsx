@@ -4,6 +4,7 @@ import { TiMessages } from 'react-icons/ti';
 import MessageItem from './MessageItem';
 import { useUserContext } from './UserContext';
 import { IoExitOutline } from 'react-icons/io5';
+import { FaAnglesDown } from 'react-icons/fa6';
 import { formatDistanceToNow } from 'date-fns';
 
 function Message() {
@@ -17,6 +18,7 @@ function Message() {
     typeMessage,
     debounceTypeMessage,
     scrollToBottom,
+    newMessages,
   } = useUserContext();
   const [formattedMessages, setFormattedMessages] = useState([]);
 
@@ -83,6 +85,14 @@ function Message() {
         <div id='scroll' ref={scrollRef}></div>
       </ul>
       <div className='form-container'>
+        {newMessages.length > 0 && (
+          <span className='scroll-message' onClick={scrollToBottom}>
+            <span>{newMessages.length}</span>
+            <span>
+              <FaAnglesDown />
+            </span>
+          </span>
+        )}
         {whoIsTyping && <p className='typing'>{whoIsTyping} is typing...</p>}
         <form onSubmit={handleSubmit}>
           <input
