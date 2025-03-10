@@ -13,7 +13,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className='antialiased'>{children}</body>
+      <body className='antialiased min-h-dvh flex flex-col dark bg-gradient-to-b from-[#2d2d2d] to-black '>
+        {children}
+      </body>
     </html>
   );
 }
