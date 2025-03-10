@@ -1,15 +1,24 @@
 import express from 'express';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import corsMiddleware from './config/corsConfig';
+import { limiter } from './config/rateLimiter';
+import { config } from './config/dotenvConfig';
+import chatRoutes from './routes/chatRoutes';
+import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+// Middleware
+app.use(corsMiddleware);
+app.use(limiter);
+app.use(express.json());
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port {PORT}`);
-});
+// API Routes
+app.use('/api/chat', chatRoutes);
+
+// Error handling
+app.use(errorHandler);
+
+// Start server
+app.listen(config.PORT, () =>
+  console.log(`Server running on port ${config.PORT}`)
+);
