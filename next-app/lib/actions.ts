@@ -7,15 +7,19 @@ import {
   CreateRoomParams,
   CreateRoomResponse,
 } from './types';
+import { generateToken } from './utils.server';
 
 export async function createRoom({
   roomName,
 }: CreateRoomParams): Promise<CreateRoomResponse> {
   try {
+    const authToken = generateToken();
+
     const res = await fetch(`${SERVER_URL}/api/chat/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify({ roomName }),
     });
@@ -24,15 +28,15 @@ export async function createRoom({
       return { error: 'An error occurred while creating the room' };
     }
 
-    const { roomId, token } = (await res.json()) as {
+    const { roomId, accessToken } = (await res.json()) as {
       roomId: string;
-      token: string;
+      accessToken: string;
     };
 
-    return { data: { roomId, token } };
+    return { data: { roomId, accessToken } };
   } catch (error) {
-    console.error(error);
-    return { error: 'An error occurred while creating the room' };
+    console.error('Error: ', error);
+    return { error: 'Server error, try again' };
   }
 }
 
@@ -40,15 +44,24 @@ export async function checkRoomPrivacy({
   roomId,
 }: CheckRoomPrivacyParams): Promise<CheckRoomPrivacyResponse> {
   try {
+    const authToken = generateToken();
+
     const res = await fetch(
-      `${SERVER_URL}/api/chat/check-privacy?roomId=${roomId}`
+      `${SERVER_URL}/api/chat/check-privacy?roomId=${roomId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
     );
 
     if (!res.ok) {
-      if (res.status === 404) {
-        return { error: 'Room does not exist' };
+      const contentType = res.headers.get('content-type');
+      if (contentType?.includes('application/json')) {
+        const { error } = (await res.json()) as { error: string };
+        console.error('Error: ', error);
+        return { error };
       }
-      return { error: 'An error occurred, please try again.' };
     }
 
     const { isPrivate } = (await res.json()) as { isPrivate: boolean };
@@ -57,8 +70,8 @@ export async function checkRoomPrivacy({
 
     return { data: { isPrivate } };
   } catch (error) {
-    console.error(error);
-    return { error: 'An error occurred, please try again' };
+    console.error('Error: ', error);
+    return { error: 'Server error, try again' };
   }
 }
 

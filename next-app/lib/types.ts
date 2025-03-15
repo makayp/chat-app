@@ -1,7 +1,7 @@
 export type CreateRoomResponse = {
   data?: {
     roomId: string;
-    token: string;
+    accessToken: string;
   };
   error?: string;
 };
