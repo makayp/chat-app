@@ -3,20 +3,20 @@
 import UsernameForm from '@/components/custom/username-form';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 // Define context types
 interface UserContextType {
-  username: string | null;
+  username: string;
   setUsername: (name: string) => void;
+  userId: string;
+  setUserId: (id: string) => void;
 }
 
 // Create Context
@@ -36,15 +36,19 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [username, setUsername] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Load username from localStorage on mount
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
-    if (!storedUsername) {
+    const storedUserId = localStorage.getItem('userId');
+
+    if (!storedUsername || !storedUserId) {
       setIsModalOpen(true);
     } else {
       setUsername(storedUsername);
+      setUserId(storedUserId);
     }
   }, []);
 
@@ -55,34 +59,64 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsModalOpen(false);
   };
 
+  const handleSetUserId = (id: string) => {
+    localStorage.setItem('userId', id);
+    setUserId(id);
+  };
+
   return (
-    <UserContext.Provider value={{ username, setUsername: handleSetUsername }}>
-      {children}
-      {isModalOpen && <UsernameModal isOpen={isModalOpen} />}
+    <UserContext.Provider
+      value={{
+        username: username!,
+        setUsername: handleSetUsername,
+        userId: userId!,
+        setUserId: handleSetUserId,
+      }}
+    >
+      {username && children}
+      {isModalOpen && (
+        <PromptDialog
+          isOpen={isModalOpen}
+          title='Enter a username'
+          description='Enter a friendly username to get started.'
+          closeHidden
+        >
+          <UsernameForm />
+        </PromptDialog>
+      )}
     </UserContext.Provider>
   );
 };
 
-// Username Modal Component
-function UsernameModal({
+export function PromptDialog({
   isOpen,
+  setIsOpen = () => {},
+  title,
+  description,
+  trigger,
+  closeHidden = false,
   children,
 }: {
   isOpen: boolean;
-  children?: React.ReactNode;
+  setIsOpen?: (open: boolean) => void;
+  title: string;
+  description: string;
+  trigger?: React.ReactNode;
+  closeHidden?: boolean;
+  children: React.ReactNode;
 }) {
   return (
-    <Dialog open={isOpen}>
-      <DialogTrigger>{children}</DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger>{trigger}</DialogTrigger>
 
-      <DialogContent closeHidden className='border-sidebar-border space-y-4'>
+      <DialogContent closeHidden={closeHidden} className='space-y-4'>
         <DialogHeader>
-          <DialogTitle>Enter a username</DialogTitle>
-          <DialogDescription>
-            Enter a friendly username to start chatting.
+          <DialogTitle className='text-center'>{title}</DialogTitle>
+          <DialogDescription className='text-center'>
+            {description}
           </DialogDescription>
         </DialogHeader>
-        <UsernameForm />
+        {children}
       </DialogContent>
     </Dialog>
   );

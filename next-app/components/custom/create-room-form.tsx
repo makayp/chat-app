@@ -37,7 +37,7 @@ export default function CreateRoomForm() {
     }
 
     startTransition(async () => {
-      const { data, error } = await createRoom({ roomName });
+      const { data, error } = await createRoom({ roomName, userToken: '' });
 
       if (error || !data) {
         if (error) {

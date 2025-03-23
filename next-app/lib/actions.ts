@@ -11,15 +11,14 @@ import { generateToken } from './utils.server';
 
 export async function createRoom({
   roomName,
+  userToken,
 }: CreateRoomParams): Promise<CreateRoomResponse> {
   try {
-    const authToken = generateToken();
-
     const res = await fetch(`${SERVER_URL}/api/chat/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${userToken}`,
       },
       body: JSON.stringify({ roomName }),
     });
@@ -28,12 +27,11 @@ export async function createRoom({
       return { error: 'An error occurred while creating the room' };
     }
 
-    const { roomId, accessToken } = (await res.json()) as {
+    const { roomId } = (await res.json()) as {
       roomId: string;
-      accessToken: string;
     };
 
-    return { data: { roomId, accessToken } };
+    return { data: { roomId } };
   } catch (error) {
     console.error('Error: ', error);
     return { error: 'Server error, try again' };
@@ -44,15 +42,8 @@ export async function checkRoomPrivacy({
   roomId,
 }: CheckRoomPrivacyParams): Promise<CheckRoomPrivacyResponse> {
   try {
-    const authToken = generateToken();
-
     const res = await fetch(
-      `${SERVER_URL}/api/chat/check-privacy?roomId=${roomId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      }
+      `${SERVER_URL}/api/chat/check-privacy?roomId=${roomId}`
     );
 
     if (!res.ok) {
@@ -66,9 +57,58 @@ export async function checkRoomPrivacy({
 
     const { isPrivate } = (await res.json()) as { isPrivate: boolean };
 
-    console.log({ isPrivate });
-
     return { data: { isPrivate } };
+  } catch (error) {
+    console.error('Error: ', error);
+    return { error: 'Server error, try again' };
+  }
+}
+
+export async function joinRoom({
+  roomId,
+  userToken,
+  password,
+}: {
+  roomId: string;
+  userToken: string;
+  password?: string;
+}): Promise<{ error?: string; success?: string }> {
+  const body = password ? { roomId, password } : { roomId };
+
+  console.log(body);
+
+  try {
+    const res = await fetch(`${SERVER_URL}/api/chat/join`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const contentType = res.headers.get('content-type');
+
+      let data;
+      if (contentType?.includes('application/json')) {
+        data = (await res.json()) as { error: string };
+        console.log(data);
+      }
+
+      if (res.status === 404) {
+        return { error: 'Room does not exist' };
+      }
+      if (res.status === 403) {
+        return data?.error
+          ? { error: data.error }
+          : { error: 'Invalid password' };
+      }
+
+      return { error: 'An error occurred while joining the room' };
+    }
+
+    return { success: 'Successfully joined room' };
   } catch (error) {
     console.error('Error: ', error);
     return { error: 'Server error, try again' };

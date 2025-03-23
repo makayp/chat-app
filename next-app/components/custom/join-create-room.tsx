@@ -10,6 +10,7 @@ import JoinRoomForm from './join-room-form';
 export default function JoinCreateRoom() {
   const searchParams = useSearchParams();
   const mode = searchParams.get('mode');
+  const roomId = searchParams.get('roomId');
 
   const isCreateMode = mode === 'create';
 
@@ -29,7 +30,7 @@ export default function JoinCreateRoom() {
             <h2 className='font-medium text-2xl text-center capitalize'>
               Join a chat room
             </h2>
-            <JoinRoomForm />
+            <JoinRoomForm roomId={roomId} />
             <p>Or</p>
             <Button onClick={handleChangeMode} className='w-fit mx-auto'>
               Create room

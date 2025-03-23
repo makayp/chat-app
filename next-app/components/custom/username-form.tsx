@@ -4,39 +4,43 @@ import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import clsx from 'clsx';
-
 import FormError from './form-error';
 import { useUser } from '@/contexts/user-context';
+import { v4 as uuid } from 'uuid';
 
 export default function UsernameForm() {
   const [formError, setFormError] = useState('');
 
-  const { username, setUsername } = useUser();
+  const { username, userId, setUsername, setUserId } = useUser();
   const [inputValue, setInputValue] = useState(username || '');
 
+  const invalidUsername =
+    inputValue.length === 0
+      ? false
+      : inputValue.includes(' ') || !/^[a-zA-Z0-9-_]+$/.test(inputValue);
+
   useEffect(() => {
-    if (!inputValue.trim()) {
-      setFormError('');
-      return;
-    }
-    if (inputValue.includes(' ')) {
-      setFormError('Username cannot contain spaces');
-    } else if (!/^[a-zA-Z0-9-_]+$/.test(inputValue)) {
+    if (invalidUsername) {
       setFormError(
         'Usernames can only contain letters, numbers, hyphens, and underscores'
       );
     } else {
       setFormError('');
     }
-  }, [inputValue]);
+  }, [inputValue, invalidUsername]);
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!inputValue.trim()) {
       setFormError('Username is required');
       return;
     }
 
+    console.log(userId);
+
+    const id = uuid();
+
     setUsername(inputValue);
+    setUserId(id);
   }
 
   return (
@@ -54,7 +58,7 @@ export default function UsernameForm() {
       <Button
         onClick={handleSubmit}
         disabled={!!formError}
-        className='bg-blue-600 hover:bg-blue-600/90 text-white'
+        className='bg-blue-600 hover:bg-blue-600/90 text-white w-full'
       >
         Continue
       </Button>
