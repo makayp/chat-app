@@ -58,7 +58,7 @@ export default function UsernameForm() {
       <Button
         onClick={handleSubmit}
         disabled={!!formError}
-        className='bg-blue-600 hover:bg-blue-600/90 text-white w-full'
+        className='bg-primary hover:bg-primary/90 text-primary-foreground w-full'
       >
         Continue
       </Button>

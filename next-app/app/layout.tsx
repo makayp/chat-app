@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { UserProvider } from '@/contexts/user-context';
+import { ThemeProvider } from '@/contexts/theme-provider';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -13,9 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
-      <body className='antialiased min-h-dvh flex flex-col dark bg-gradient-to-b from-[#2d2d2d] to-black '>
-        <UserProvider>{children}</UserProvider>
+    <html lang='en' suppressHydrationWarning>
+      <body className='antialiased min-h-dvh flex flex-col'>
+        <UserProvider>
+          <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
+            {children}
+          </ThemeProvider>
+        </UserProvider>
       </body>
     </html>
   );

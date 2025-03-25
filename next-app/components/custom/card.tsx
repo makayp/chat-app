@@ -37,13 +37,10 @@ export default function Card({
       )}
       <div
         className={twMerge(
-          clsx(
-            'border border-foreground/30 -z-10 absolute inset-0 m-0 rounded-lg',
-            {
-              '[mask-image:linear-gradient(to_top_right,transparent,black_20%,black_80%,transparent)]':
-                maskBorder,
-            }
-          ),
+          clsx('border border-border -z-10 absolute inset-0 m-0 rounded-lg', {
+            '[mask-image:linear-gradient(to_top_right,transparent,black_20%,black_80%,transparent)]':
+              maskBorder,
+          }),
           borderClassName
         )}
       />

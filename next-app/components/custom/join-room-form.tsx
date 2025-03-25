@@ -105,6 +105,8 @@ export default function JoinRoomForm({
     startTransition(async () => {
       const accessToken = await generateToken({ userId, username });
 
+      console.log('Generating join token:', accessToken);
+
       const { success, error } = await joinRoom({
         roomId: roomIdInput,
         userToken: accessToken,
@@ -156,7 +158,7 @@ export default function JoinRoomForm({
           placeholder='Room ID'
         />
 
-        {passwordRequired && (
+        {!passwordRequired && (
           <div className='relative w-full'>
             <Input
               type={showPassword ? 'text' : 'password'}
@@ -174,7 +176,7 @@ export default function JoinRoomForm({
               size='sm'
               type='button'
               onClick={() => setShowPassword((show) => !show)}
-              className='absolute top-1/2 right-2 transform -translate-y-1/2 p-0 text-xs text-foreground/70'
+              className='absolute top-1/2 right-2 transform -translate-y-1/2 p-0 text-xs text-foreground/70 hover:bg-transparent'
             >
               {showPassword ? 'Hide' : 'Show'}
             </Button>
@@ -191,7 +193,7 @@ export default function JoinRoomForm({
         <Button
           onClick={handleJoinRoom}
           disabled={isJoining || invalidRoomId}
-          className='bg-blue-600 hover:bg-blue-600/90 text-white w-full'
+          className='bg-primary hover:bg-primary/90 text-primary-foreground w-full'
         >
           {isJoining ? 'Joining...' : 'Join Room'}
         </Button>

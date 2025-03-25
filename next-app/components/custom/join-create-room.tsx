@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import Card from './card';
 import CreateRoomForm from './create-room-form';
 import JoinRoomForm from './join-room-form';
+import ThemeToggle from './theme-toggle';
 
 export default function JoinCreateRoom() {
   const searchParams = useSearchParams();
@@ -25,6 +26,8 @@ export default function JoinCreateRoom() {
   return (
     <div>
       <Card className='w-[calc(100dvw-32px)] max-w-[25rem] text-center py-12 '>
+        <ThemeToggle className='absolute top-4 right-4' />
+
         {!isCreateMode && (
           <div className='space-y-8'>
             <h2 className='font-medium text-2xl text-center capitalize'>
@@ -32,7 +35,10 @@ export default function JoinCreateRoom() {
             </h2>
             <JoinRoomForm roomId={roomId} />
             <p>Or</p>
-            <Button onClick={handleChangeMode} className='w-fit mx-auto'>
+            <Button
+              onClick={handleChangeMode}
+              className='w-fit mx-auto text-accent bg-foreground hover:bg-foreground/90 shadow-sm'
+            >
               Create room
             </Button>
           </div>
@@ -49,7 +55,7 @@ export default function JoinCreateRoom() {
               asChild
               variant='link'
               onClick={handleChangeMode}
-              className='w-fit mx-auto hover:no-underline hover:text-foreground/90'
+              className='w-fit mx-auto hover:no-underline text-foreground hover:text-foreground/90'
             >
               <span>
                 <ArrowLeftCircle size={24} /> Join room
