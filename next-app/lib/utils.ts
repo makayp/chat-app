@@ -34,3 +34,22 @@ export function formatTimeAgo(timestamp: number): string {
     date.getMonth() + 1
   }/${date.getDate()}/${date.getFullYear()} at ${formattedHours}:${formattedMinutes} ${ampm}`;
 }
+
+export function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+export function generateMessageId() {
+  return 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+}
+
+export function createUser(username: string) {
+  return {
+    userId: generateUUID(),
+    username,
+  };
+}

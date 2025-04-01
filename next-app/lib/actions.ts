@@ -1,20 +1,20 @@
 'use server';
 
-import { SERVER_URL } from './constants.server';
+import { clientConfig } from './constants.client';
 import {
   CheckRoomPrivacyParams,
   CheckRoomPrivacyResponse,
   CreateRoomParams,
   CreateRoomResponse,
 } from './types';
-import { generateToken } from './utils.server';
+// import { generateToken } from './utils.server';
 
 export async function createRoom({
   roomName,
   userToken,
 }: CreateRoomParams): Promise<CreateRoomResponse> {
   try {
-    const res = await fetch(`${SERVER_URL}/api/chat/create`, {
+    const res = await fetch(`${clientConfig.backendUrl}/api/chat/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -43,7 +43,7 @@ export async function checkRoomPrivacy({
 }: CheckRoomPrivacyParams): Promise<CheckRoomPrivacyResponse> {
   try {
     const res = await fetch(
-      `${SERVER_URL}/api/chat/check-privacy?roomId=${roomId}`
+      `${clientConfig.backendUrl}/api/chat/check-privacy?roomId=${roomId}`
     );
 
     if (!res.ok) {
@@ -78,7 +78,7 @@ export async function joinRoom({
   console.log(body);
 
   try {
-    const res = await fetch(`${SERVER_URL}/api/chat/join`, {
+    const res = await fetch(`${clientConfig.backendUrl}/api/chat/join`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

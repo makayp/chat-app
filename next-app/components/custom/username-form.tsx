@@ -5,8 +5,8 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import clsx from 'clsx';
 import FormError from './form-error';
-import { useUser } from '@/contexts/user-context';
-import { v4 as uuid } from 'uuid';
+import { useUser } from '@/context/user-context';
+import { generateUUID } from '@/lib/utils';
 
 export default function UsernameForm() {
   const [formError, setFormError] = useState('');
@@ -37,7 +37,7 @@ export default function UsernameForm() {
 
     console.log(userId);
 
-    const id = uuid();
+    const id = generateUUID();
 
     setUsername(inputValue);
     setUserId(id);

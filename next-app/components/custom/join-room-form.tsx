@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from '@/contexts/user-context';
+import { useUser } from '@/context/user-context';
 import { joinRoom } from '@/lib/actions';
 import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
@@ -158,7 +158,7 @@ export default function JoinRoomForm({
           placeholder='Room ID'
         />
 
-        {!passwordRequired && (
+        {passwordRequired && (
           <div className='relative w-full'>
             <Input
               type={showPassword ? 'text' : 'password'}
