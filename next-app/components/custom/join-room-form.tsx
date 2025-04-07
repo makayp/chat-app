@@ -1,14 +1,12 @@
 'use client';
 
-import { useUser } from '@/context/user-context';
-import { joinRoom } from '@/lib/actions';
 import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import FormError from './form-error';
-import { generateToken } from '@/lib/utils.server';
+import { useChat } from '@/hooks/use-chat';
 
 const initialErrorState = {
   roomId: '',
@@ -28,27 +26,20 @@ export default function JoinRoomForm({
     passwordInput: '',
   });
 
-  const [showPassword, setShowPassword] = useState(false);
+  const { joinRoom } = useChat();
 
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const { roomIdInput, passwordInput } = input;
+  const [formError, setFormError] = useState(initialErrorState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const invalidRoomId =
     roomIdInput.length === 0
       ? false
       : !/^[a-zA-Z0-9-_]+$/.test(roomIdInput) || roomIdInput.includes(' ');
 
-  const [formError, setFormError] = useState(initialErrorState);
-
-  const { username, userId } = useUser();
-
-  const [isJoining, startTransition] = useTransition();
-
   const router = useRouter();
-
-  // useEffect(() => {
-  //   if (roomId) handleJoinRoom();
-  // }, []);
 
   useEffect(() => {
     if (!passwordRequired) {
@@ -84,65 +75,48 @@ export default function JoinRoomForm({
     }));
   }
 
-  function handleJoinRoom(e: React.MouseEvent<HTMLButtonElement>) {
-    setFormError(initialErrorState);
+  async function handleJoinRoom(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!roomIdInput.trim() || (passwordRequired && !passwordInput)) {
-      if (!roomIdInput.trim()) {
-        setFormError((error) => ({ ...error, roomId: 'Room ID is required' }));
-      }
-
-      if (passwordRequired && !passwordInput) {
-        setFormError((error) => ({
-          ...error,
-          password: 'Password is required',
-        }));
-      }
-
+    setFormError(initialErrorState);
+    if (!roomIdInput.trim() || invalidRoomId) {
+      setFormError((error) => ({
+        ...error,
+        roomName: 'Enter a valid room name',
+      }));
       return;
     }
 
-    startTransition(async () => {
-      const accessToken = await generateToken({ userId, username });
+    if (passwordRequired && !passwordInput) {
+      setFormError((error) => ({
+        ...error,
+        password: 'Password is required',
+      }));
+      return;
+    }
 
-      console.log('Generating join token:', accessToken);
+    setIsSubmitting(true);
+    try {
+      await joinRoom(roomIdInput.trim(), passwordRequired ? passwordInput : '');
 
-      const { success, error } = await joinRoom({
-        roomId: roomIdInput,
-        userToken: accessToken,
-        password: passwordRequired ? passwordInput : undefined,
-      });
-
-      if (error || !success) {
-        if (error) {
-          if (error === 'Room does not exist') {
-            setFormError((error) => ({
-              ...error,
-              roomId: 'Room does not exist',
-            }));
-          } else if (passwordRequired && error === 'Invalid password') {
-            setFormError((error) => ({
-              ...error,
-              password: 'Invalid password',
-            }));
-          } else if (error === 'Password is required') {
-            setPasswordRequired(true);
-          } else {
-            setFormError((e) => ({
-              ...e,
-              server: error,
-            }));
-          }
-          return;
+      router.push(`/chat/${roomIdInput}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        if (error.message === 'Password required') {
+          setPasswordRequired(true);
         }
-      }
 
-      router.push(`/chat/${input.roomIdInput}`);
-    });
+        setFormError((prev) => ({
+          ...prev,
+          server: error.message || 'Failed to join room',
+        }));
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
-    <form>
+    <form onSubmit={handleJoinRoom}>
       <div
         className={clsx('flex flex-col items-center gap-4 w-full', className)}
       >
@@ -152,7 +126,7 @@ export default function JoinRoomForm({
           autoComplete='room-id'
           autoFocus
           value={roomIdInput}
-          disabled={isJoining}
+          disabled={isSubmitting}
           aria-invalid={!!formError.roomId}
           onChange={handleInputChange}
           placeholder='Room ID'
@@ -165,7 +139,7 @@ export default function JoinRoomForm({
               name='passwordInput'
               autoComplete='current-password'
               value={passwordInput}
-              disabled={isJoining}
+              disabled={isSubmitting}
               autoFocus={passwordRequired}
               aria-invalid={!!formError.password}
               onChange={handleInputChange}
@@ -191,11 +165,11 @@ export default function JoinRoomForm({
           )
         )}
         <Button
-          onClick={handleJoinRoom}
-          disabled={isJoining || invalidRoomId}
+          type='submit'
+          disabled={isSubmitting || invalidRoomId}
           className='bg-primary hover:bg-primary/90 text-primary-foreground w-full'
         >
-          {isJoining ? 'Joining...' : 'Join Room'}
+          {isSubmitting ? 'Joining...' : 'Join Room'}
         </Button>
       </div>
     </form>

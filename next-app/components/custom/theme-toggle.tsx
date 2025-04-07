@@ -10,7 +10,7 @@ import { SidebarMenuButton, useSidebar } from '../ui/sidebar';
 
 const themes = ['light', 'system', 'dark'] as const;
 
-export default function SidebarThemeToggle({
+export function SidebarThemeToggle({
   classNames,
 }: {
   alwaysExpanded?: boolean;
