@@ -7,10 +7,12 @@ import {
   useRef,
 } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Room, useChatContext } from './chat-context';
 
 import { clientConfig } from '@/lib/constants.client';
 import { useAuth } from './auth-context';
+import toast from 'react-hot-toast';
+import { useChatContext } from './chat-context';
+import { ChatRoom } from '@/types';
 
 interface ServerError {
   type: string;
@@ -24,7 +26,7 @@ const WebSocketContext = createContext<
       createRoom: (
         roomName: string,
         password?: string
-      ) => Promise<Room | undefined>;
+      ) => Promise<ChatRoom | undefined>;
       joinRoom: (roomId: string, password?: string) => Promise<void>;
     }
   | undefined
@@ -201,6 +203,7 @@ export default function WebSocketProvider({
   // Connect to WebSocket
   const connect = useCallback(() => {
     if (!socket) {
+      toast.error('No WebSocket connection available');
       init();
       return;
     }
@@ -235,7 +238,10 @@ export default function WebSocketProvider({
 
   // Create a new room
   const createRoom = useCallback(
-    async (roomName: string, password?: string): Promise<Room | undefined> => {
+    async (
+      roomName: string,
+      password?: string
+    ): Promise<ChatRoom | undefined> => {
       if (!socket || !socket.connected) {
         throw new Error('Not connected to server');
       }
@@ -243,7 +249,7 @@ export default function WebSocketProvider({
         socket.emit(
           'create_room',
           { roomName, password },
-          (response: { room: Room }) => {
+          (response: { room: ChatRoom }) => {
             if (response.room) {
               dispatch({ type: 'JOIN_ROOM', payload: response.room });
 
@@ -269,7 +275,7 @@ export default function WebSocketProvider({
         socket.emit(
           'join_room',
           { roomId, password },
-          (response: { error?: ServerError; room?: Room }) => {
+          (response: { error?: ServerError; room?: ChatRoom }) => {
             if (response.error) {
               reject(new Error(response.error.message));
             } else if (response.room) {

@@ -20,7 +20,7 @@ export function SidebarLeft({
         <User />
       </SidebarHeader>
 
-      <Separator className='max-w-[calc(100%-24px)] mx-auto mb-4' />
+      <Separator className='max-w-[calc(100%-24px)] mx-auto' />
 
       <SidebarContent>
         <NavRooms />

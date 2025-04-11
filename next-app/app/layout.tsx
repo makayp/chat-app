@@ -1,15 +1,7 @@
 import type { Metadata } from 'next';
-import { cookies } from 'next/headers';
 import { Toaster } from 'react-hot-toast';
-
-import UserProvider from '@/context/auth-context';
 import { ThemeProvider } from '@/context/theme-provider';
-import { ChatProvider } from '@/context/chat-context';
-import WebSocketProvider from '@/context/web-socket-context';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { SidebarLeft } from '@/components/custom/sidebar-left';
 import './globals.css';
-import ConnectionBanner from '@/components/custom/connection-banner';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -21,27 +13,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
   return (
     <html lang='en' suppressHydrationWarning>
       <body className='antialiased min-h-dvh flex flex-col overflow-hidden'>
-        <UserProvider>
-          <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
-            <ChatProvider>
-              <WebSocketProvider>
-                <SidebarProvider defaultOpen={defaultOpen}>
-                  <SidebarLeft />
-                  <SidebarInset>
-                    <Toaster />
-                    <ConnectionBanner />
-                    {children}
-                  </SidebarInset>
-                </SidebarProvider>
-              </WebSocketProvider>
-            </ChatProvider>
-          </ThemeProvider>
-        </UserProvider>
+        <Toaster />
+        <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
