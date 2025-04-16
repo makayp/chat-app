@@ -12,7 +12,7 @@ export default function SidebarActions() {
       <JoinRoomDialog>
         <SidebarMenuItem>
           <SidebarMenuButton
-            className='bg-sidebar-primary-foreground hover:bg-sidebar-primary-foreground/70 active:bg-sidebar-primary-foreground foreground rounded-3xl'
+            className='bg-sidebar-accent hover:bg-sidebar-accent/80 rounded-3xl'
             tooltip='Join room'
           >
             <LogIn className='size-4' />

@@ -168,58 +168,20 @@
   @apply bg-background/80 backdrop-blur-xl border border-border rounded-2xl shadow-lg;
 }
 
-@utility message-bubble {
-  @apply rounded-2xl p-3 max-w-[85%];
-}
-
-@utility my-message {
-  @apply message-bubble bg-primary text-primary-foreground ml-auto;
-}
-
-@utility other-message {
-  @apply message-bubble bg-secondary text-secondary-foreground mr-auto;
-}
-
-@utility status-indicator {
-  @apply inline-flex h-2 w-2 rounded-full;
-}
-
-@utility status-online {
-  @apply status-indicator bg-green-500;
-}
-
-@utility status-offline {
-  @apply status-indicator bg-gray-400;
-}
-
 @utility typing-indicator {
   @apply flex space-x-1 h-4 items-end;
 }
 
 @utility typing-dot {
-  @apply h-1.5 w-1.5 bg-muted-foreground rounded-full;
+  @apply size-[5px] bg-gray-400 rounded-full;
 }
 
 @utility connection-banner {
-  @apply absolute top-16 w-fit max-w-sm left-1/2 -translate-x-1/2 flex items-center justify-center bg-destructive/90 text-destructive-foreground px-4 h-8 text-center text-sm font-medium z-50 rounded-3xl whitespace-nowrap;
+  @apply absolute top-18 w-fit max-w-sm left-1/2 -translate-x-1/2 flex items-center justify-center bg-destructive/90 text-destructive-foreground px-4 h-8 text-center text-sm font-medium z-50 rounded-3xl whitespace-nowrap;
 }
 
 @utility button-with-icon {
   @apply inline-flex items-center gap-2;
-}
-
-@utility file-drop-area {
-  @apply border-2 border-dashed rounded-lg p-4 transition-all;
-
-  &.active {
-    @apply border-primary bg-primary/5;
-  }
-}
-
-@utility active {
-  &.file-drop-area {
-    @apply border-primary bg-primary/5;
-  }
 }
 
 @utility file-preview {
@@ -277,8 +239,8 @@
 
     --radius: 0.625rem;
 
-    /* --sidebar-background: 220 30% 18%; */
-    --sidebar-background: oklch(0.967 0.003 264.542);
+    --sidebar-background: hsl(210 40% 98%);
+    /* --sidebar-background: oklch(0.967 0.003 264.542); */
     /* --sidebar-foreground: 210 40% 98%; */
     --sidebar-foreground: hsl(220 25% 20%);
     --sidebar-primary: hsl(217 91% 60%);
@@ -322,9 +284,12 @@
     --input: hsl(220 30% 18%);
     --ring: hsl(0.553 0.013% 58.071%);
 
-    --sidebar-background: hsl(220 20% 14%);
+    --sidebar-background: hsl(220 35% 11%);
+    /* --sidebar-background: hsl(220 20% 14%); */
     --sidebar-foreground: hsl(210 40% 98%);
-    --sidebar-primary: hsl(217 91% 60%);
+    /* --sidebar-primary: hsl(217 91% 60%);
+    --sidebar-primary-foreground: hsl(0 0% 100%); */
+    --sidebar-primary: oklch(0.546 0.245 262.881);
     --sidebar-primary-foreground: hsl(0 0% 100%);
     --sidebar-accent: hsl(220 25% 20%);
     --sidebar-accent-foreground: hsl(210 40% 98%);
@@ -352,8 +317,7 @@
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    @apply size-1;
   }
 
   ::-webkit-scrollbar-track {
@@ -361,7 +325,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full;
+    @apply bg-muted-foreground/20 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {

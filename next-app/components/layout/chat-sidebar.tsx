@@ -49,8 +49,7 @@ export default function ChatSidebar() {
           <div className='mt-4 space-y-2 p-4'>
             <Button
               variant='outline'
-              // size='sm'
-              className='w-full text-sm'
+              className='w-full text-sm bg-sidebar-accent'
               // onClick={handleShareRoom}
             >
               <Forward className='size-4' />
@@ -58,7 +57,6 @@ export default function ChatSidebar() {
             </Button>
             <Button
               variant='destructive'
-              // size='sm'
               className='w-full text-sm'
               // onClick={handleLeaveRoom}
             >
