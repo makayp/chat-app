@@ -7,9 +7,10 @@ import {
 } from '@/components/ui/sidebar';
 
 import { Separator } from '../ui/separator';
-import User from './User';
-import NavRooms from './nav-rooms';
+
 import SidebarActions from './sidebar-actions';
+import RoomList from './room-list';
+import User from '../custom ui/User';
 
 export function SidebarLeft({
   ...props
@@ -23,7 +24,7 @@ export function SidebarLeft({
       <Separator className='max-w-[calc(100%-24px)] mx-auto' />
 
       <SidebarContent>
-        <NavRooms />
+        <RoomList />
       </SidebarContent>
 
       <SidebarFooter>

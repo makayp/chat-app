@@ -1,5 +1,7 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { Button } from '../ui/button';
 import {
   Dialog,
   DialogContent,
@@ -8,20 +10,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { ArrowLeftCircle } from 'lucide-react';
-import CreateRoomForm from './create-room-form';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import JoinRoomForm from '../forms/join-room-form';
 
-export default function CreateRoomDialog({
+export default function JoinRoomDialog({
   mode,
   children,
 }: {
   mode?: 'join' | 'create';
   children: React.ReactNode;
 }) {
-  // const [open, setOpen] = useState(defaultMode === 'create');
+  // const [open, setOpen] = useState(mode === 'join');
   const router = useRouter();
 
   function handleUrlChange(mode?: 'join' | 'create') {
@@ -31,11 +29,11 @@ export default function CreateRoomDialog({
   return (
     <Dialog
       // defaultOpen={open}
-      open={mode === 'create'}
+      open={mode === 'join'}
       onOpenChange={(open) => {
         if (open) {
           // setOpen(true);
-          handleUrlChange('create');
+          handleUrlChange('join');
         } else {
           // setOpen(false);
           handleUrlChange();
@@ -47,28 +45,25 @@ export default function CreateRoomDialog({
       <DialogContent className='text-center sm:max-w-md'>
         <DialogHeader className='mt-5'>
           <DialogTitle className='text-center font-medium'>
-            Create a Room
+            Join a Room
           </DialogTitle>
           <DialogDescription className='text-center'>
-            Enter a name for the new room.
+            Enter a room ID to join an existing room.
           </DialogDescription>
         </DialogHeader>
 
         <div className='space-y-8'>
-          <CreateRoomForm />
-
+          <JoinRoomForm />
+          <p>Or</p>
           <Button
-            asChild
-            variant='link'
+            variant='outline'
             onClick={() => {
-              handleUrlChange('join');
               // setOpen(false);
+              handleUrlChange('create');
             }}
-            className='w-fit mx-auto hover:no-underline text-foreground hover:text-foreground/90'
+            className='w-fit mx-auto shadow-sm'
           >
-            <span>
-              <ArrowLeftCircle size={24} /> Join room
-            </span>
+            Create room
           </Button>
         </div>
       </DialogContent>

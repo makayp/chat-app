@@ -13,16 +13,24 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '../ui/sidebar';
+import { cn } from '@/lib/utils';
 
 export default function RoomItem({
   room,
   isMobile,
+  isActiveRoom,
 }: {
   room: ChatRoom;
   isMobile: boolean;
+  isActiveRoom: boolean;
 }) {
   return (
-    <SidebarMenuItem key={room.id}>
+    <SidebarMenuItem
+      key={room.id}
+      className={cn({
+        'bg-sidebar-accent/80 rounded-md': isActiveRoom,
+      })}
+    >
       <SidebarMenuButton asChild>
         <Link href={`/c/${room.id}`}>
           <span>{room.name}</span>

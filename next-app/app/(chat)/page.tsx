@@ -1,5 +1,6 @@
-import CreateRoomDialog from '@/components/custom/create-room-dialog';
-import JoinRoomDialog from '@/components/custom/join-room-dialog';
+import ChatHeader from '@/components/chat/chat-header';
+import CreateRoomDialog from '@/components/layout/create-room-dialog';
+import JoinRoomDialog from '@/components/layout/join-room-dialog';
 import { Button } from '@/components/ui/button';
 
 export default async function Page({
@@ -10,7 +11,9 @@ export default async function Page({
   const { mode } = await searchParams;
 
   return (
-    <div>
+    <div className='flex flex-col overflow-autoh no-scrollbar'>
+      <ChatHeader />
+
       <div className='flex-1 text-center px-4 py-4'>
         <p className='text-lg text-foreground/80 mt-20'>
           Please select, create or join a chat room <br /> to get started.

@@ -12,9 +12,9 @@ import {
 import { useChat } from '@/hooks/use-chat';
 import RoomItem from './room-item';
 
-export default function NavRooms() {
+export default function RoomList() {
   const { isMobile, open, setOpen } = useSidebar();
-  const { rooms, connection } = useChat();
+  const { activeRoomId, rooms, connection } = useChat();
   const { isConnecting, isInitialConnect, error } = connection;
 
   return (
@@ -59,7 +59,12 @@ export default function NavRooms() {
         {rooms.length > 0 && (
           <SidebarMenu>
             {rooms.map((room) => (
-              <RoomItem key={room.id} room={room} isMobile={isMobile} />
+              <RoomItem
+                key={room.id}
+                room={room}
+                isActiveRoom={room.id === activeRoomId}
+                isMobile={isMobile}
+              />
             ))}
           </SidebarMenu>
         )}

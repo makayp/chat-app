@@ -2,7 +2,7 @@
 
 import { LogIn, PlusCircle } from 'lucide-react';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../ui/sidebar';
-import { SidebarThemeToggle } from './theme-toggle';
+import { SidebarThemeToggle } from '../custom ui/theme-toggle';
 import JoinRoomDialog from './join-room-dialog';
 import CreateRoomDialog from './create-room-dialog';
 

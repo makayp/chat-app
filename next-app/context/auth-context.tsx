@@ -1,6 +1,6 @@
 'use client';
 
-import UsernameForm from '@/components/custom/username-form';
+import UsernameForm from '@/components/forms/username-form';
 import {
   Dialog,
   DialogContent,
