@@ -9,13 +9,20 @@ export function useChat() {
   const { userId } = useAuth();
 
   // Initialize WebSocket connection and get methods
-  const { connect, disconnect, joinRoom, createRoom } = useWebSocket();
+  const {
+    connect,
+    disconnect,
+    joinRoom,
+    createRoom,
+    sendMessage,
+    markMessageAsRead,
+  } = useWebSocket();
 
   // Set active room
-  const setActiveRoom = useCallback(
+  const setActiveRoomId = useCallback(
     (roomId: string | null) => {
       dispatch({
-        type: 'SET_ACTIVE_ROOM',
+        type: 'SET_ACTIVE_ROOM_ID',
         payload: roomId,
       });
     },
@@ -52,6 +59,41 @@ export function useChat() {
     );
   }, [state.activeRoomId, state.typingUsers, state.users, userId]);
 
+  // Helper function to get pending files in active room
+  const getPendingFiles = useCallback((): File[] => {
+    if (!state.activeRoomId) return [];
+    return state.pendingFiles[state.activeRoomId] || [];
+  }, [state.activeRoomId, state.pendingFiles]);
+
+  // Add pending file
+  const addPendingFile = useCallback(
+    (file: File) => {
+      dispatch({
+        type: 'ADD_PENDING_FILE',
+        payload: file,
+      });
+    },
+    [dispatch]
+  );
+
+  // Remove pending file
+  const removePendingFile = useCallback(
+    (file: string) => {
+      dispatch({
+        type: 'REMOVE_PENDING_FILE',
+        payload: file,
+      });
+    },
+    [dispatch]
+  );
+
+  // Clear pending files
+  const clearPendingFiles = useCallback(() => {
+    dispatch({
+      type: 'CLEAR_PENDING_FILES',
+    });
+  }, [dispatch]);
+
   return {
     // Connection State
     connection: { ...state.connection, connect, disconnect },
@@ -63,12 +105,18 @@ export function useChat() {
     messages: getActiveRoomMessages(),
     users: getActiveRoomUsers(),
     typingUsers: getTypingUsers(),
+    pendingFiles: getPendingFiles(),
 
     // Actions
     connect,
     disconnect,
     createRoom,
     joinRoom,
-    setActiveRoom,
+    setActiveRoomId,
+    sendMessage,
+    addPendingFile,
+    removePendingFile,
+    clearPendingFiles,
+    markMessageAsRead,
   };
 }

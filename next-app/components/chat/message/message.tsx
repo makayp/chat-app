@@ -1,16 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Message as MessageType } from '@/types';
+import { Message as MessageType, User } from '@/types';
 import { motion } from 'framer-motion';
 import { Check, CheckCheck, Clock3 } from 'lucide-react';
 import FilePreview from './file-preview';
 
 interface MessageProps {
+  sender?: User;
   message: MessageType;
   isOwn: boolean;
 }
 
-export default function Message({ message, isOwn }: MessageProps) {
+export default function Message({ message, isOwn, sender }: MessageProps) {
   const formattedTime = new Date(message.timestamp).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
@@ -28,8 +29,8 @@ export default function Message({ message, isOwn }: MessageProps) {
       })}
     >
       {!isOwn && (
-        <span className='text-xs text-muted-foreground ml-3 mb-1'>
-          {message.from}
+        <span className='flex items-center gap-2 text-xs text-muted-foreground ml-3 mb-1'>
+          {sender?.username || 'Unknown'}
         </span>
       )}
 

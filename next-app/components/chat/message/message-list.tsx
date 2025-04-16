@@ -8,12 +8,14 @@ import TypingIndicator from '../../custom ui/typing-indicator';
 interface MessageListProps {
   messages: MessageType[];
   typingUsers: User[];
+  users: User[];
   currentUserId: string;
   className?: string;
 }
 
 export default function MessageList({
   messages,
+  users,
   typingUsers,
   currentUserId,
   className,
@@ -39,6 +41,7 @@ export default function MessageList({
             <Message
               key={message.id}
               message={message}
+              sender={users.find((user) => user.id === message.from)}
               isOwn={message.from === currentUserId}
             />
           ))}
