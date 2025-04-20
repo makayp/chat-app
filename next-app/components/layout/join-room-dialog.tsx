@@ -1,7 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { Button } from '../ui/button';
+import { useState } from 'react';
+import JoinRoomForm from '../forms/join-room-form';
 import {
   Dialog,
   DialogContent,
@@ -10,36 +10,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
-import JoinRoomForm from '../forms/join-room-form';
 
 export default function JoinRoomDialog({
-  mode,
   children,
 }: {
-  mode?: 'join' | 'create';
   children: React.ReactNode;
 }) {
-  // const [open, setOpen] = useState(mode === 'join');
-  const router = useRouter();
-
-  function handleUrlChange(mode?: 'join' | 'create') {
-    router.replace(window.location.pathname + (mode ? `?mode=${mode}` : ''));
-  }
+  const [open, setOpen] = useState(false);
 
   return (
-    <Dialog
-      // defaultOpen={open}
-      open={mode === 'join'}
-      onOpenChange={(open) => {
-        if (open) {
-          // setOpen(true);
-          handleUrlChange('join');
-        } else {
-          // setOpen(false);
-          handleUrlChange();
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent className='text-center sm:max-w-md'>
@@ -52,20 +32,7 @@ export default function JoinRoomDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className='space-y-8'>
-          <JoinRoomForm />
-          <p>Or</p>
-          <Button
-            variant='outline'
-            onClick={() => {
-              // setOpen(false);
-              handleUrlChange('create');
-            }}
-            className='w-fit mx-auto shadow-sm'
-          >
-            Create room
-          </Button>
-        </div>
+        <JoinRoomForm onJoin={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

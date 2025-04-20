@@ -11,7 +11,7 @@ import MessageInput from './message/message-input';
 import MessageList from './message/message-list';
 
 export default function ChatRoom({ roomId }: { roomId: string }) {
-  const { userId, username } = useAuth();
+  const { userId } = useAuth();
   const [isDragging, setIsDragging] = useState(false);
 
   const router = useRouter();
@@ -20,6 +20,7 @@ export default function ChatRoom({ roomId }: { roomId: string }) {
     rooms,
     connection,
     activeRoomId,
+    users,
     messages,
     typingUsers,
     addPendingFile,
@@ -27,39 +28,40 @@ export default function ChatRoom({ roomId }: { roomId: string }) {
     joinRoom,
   } = useChat();
 
-  const { isConnected, isInitialConnect, isConnecting } = connection;
+  const { isInitialConnect, isConnecting, isConnected } = connection;
 
   useEffect(() => {
-    if (username && roomId) {
-      const isInRoom = rooms.some((room) => room.id === roomId);
+    if (!isConnected || isConnecting) return;
 
-      if (!isInRoom) {
-        if (!isConnected) {
-          console.error('Not connected to the server');
-          router.push('/');
-          return;
+    const isInRoom = rooms.some((room) => room.id === roomId);
+
+    if (!isInRoom) {
+      joinRoom(roomId).catch((error) => {
+        if (error instanceof Error) {
+          if (error.message === 'Password required') {
+            router.push(`/c/${roomId}?password-required=true`);
+            return;
+          }
         }
 
-        joinRoom(roomId).catch((error) => {
-          console.error('Failed to join room:', error);
-          router.push('/');
-        });
-      }
+        router.push('/');
+      });
+      return;
+    }
 
-      // Set as active room
-      if (activeRoomId !== roomId) {
-        setActiveRoomId(roomId);
-      }
+    // Set as active room
+    if (activeRoomId !== roomId) {
+      setActiveRoomId(roomId);
     }
   }, [
+    activeRoomId,
     isConnected,
-    username,
+    isConnecting,
+    joinRoom,
     roomId,
     rooms,
-    joinRoom,
-    activeRoomId,
-    setActiveRoomId,
     router,
+    setActiveRoomId,
   ]);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -86,19 +88,29 @@ export default function ChatRoom({ roomId }: { roomId: string }) {
       className={cn('h-full flex flex-col overflow-y-auto')}
     >
       <ChatHeader />
-      {/* {isInitialConnect && isConnecting && (
+      {isInitialConnect && isConnecting && (
         <div className='flex-1 flex items-center justify-center'>
           <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
         </div>
-      )} */}
+      )}
 
-      <MessageList
-        messages={messages}
-        typingUsers={typingUsers}
-        currentUserId={userId!}
-      />
+      {isInitialConnect && !isConnecting && !isConnected && (
+        <div className='flex-1 flex items-center justify-center text-center text-muted-foreground'>
+          Failed to connect to the server. <br /> Please try again later
+        </div>
+      )}
 
-      <MessageInput />
+      {!isInitialConnect && activeRoomId && (
+        <>
+          <MessageList
+            users={users}
+            messages={messages}
+            typingUsers={typingUsers}
+            currentUserId={userId!}
+          />
+          <MessageInput />
+        </>
+      )}
 
       {isDragging && (
         <div className='absolute inset-0 flex flex-col text-lg items-center justify-center gap-2 bg-background/90 text-foreground rounded-md z-50 border border-dashed border-primary/70'>

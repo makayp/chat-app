@@ -10,10 +10,14 @@ export default function UserList() {
   const { userId } = useAuth();
 
   const sortedUsers = [...users].sort((a, b) => {
-    // Sort by online status first, then by name
+    // Sort by current user first
+    if (a.id === userId) return -1;
+    if (b.id === userId) return 1;
+    // Sort by online status
     if (a.isOnline !== b.isOnline) {
       return a.isOnline ? -1 : 1;
     }
+    // Sort by username
     return a.username.localeCompare(b.username);
   });
 

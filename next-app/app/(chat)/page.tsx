@@ -4,13 +4,7 @@ import JoinRoomDialog from '@/components/layout/join-room-dialog';
 import { Button } from '@/components/ui/button';
 import { MessagesSquare } from 'lucide-react';
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ mode?: 'join' | 'create' }>;
-}) {
-  const { mode } = await searchParams;
-
+export default async function Page() {
   return (
     <div className='flex-1 flex flex-col overflow-auto no-scrollbar'>
       <ChatHeader />
@@ -23,10 +17,10 @@ export default async function Page({
           </p>
 
           <div className='flex flex-col md:flex-row items-center justify-center gap-4 mt-8'>
-            <JoinRoomDialog mode={mode}>
+            <JoinRoomDialog>
               <Button>Join Room</Button>
             </JoinRoomDialog>
-            <CreateRoomDialog mode={mode}>
+            <CreateRoomDialog>
               <Button variant='outline'>Create Room</Button>
             </CreateRoomDialog>
           </div>

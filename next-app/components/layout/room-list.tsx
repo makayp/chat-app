@@ -22,7 +22,7 @@ export default function RoomList() {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton
-            tooltip='Joined Rooms'
+            tooltip={`Joined Rooms (${rooms.length})`}
             className='hover:bg-transparent hover:text-sidebar-foreground active:text-sidebar-foreground active:bg-transparent text font-semibold whitespace-nowrap'
             onClick={() => {
               if (!isMobile && !open) setOpen(true);

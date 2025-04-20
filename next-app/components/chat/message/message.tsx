@@ -25,7 +25,6 @@ export default function Message({ message, isOwn, sender }: MessageProps) {
       className={cn('group text-[15px] flex flex-col mb-4 overflow-hidden', {
         'items-end ml-auto': isOwn,
         'items-start': !isOwn,
-        'max-w-sm md:max-w-md': message.files && message.files.length > 0,
       })}
     >
       {!isOwn && (
@@ -35,10 +34,14 @@ export default function Message({ message, isOwn, sender }: MessageProps) {
       )}
 
       <div
-        className={cn('rounded-xl p-1.5 max-w-[75%] md:max-w-[60%]', {
-          'bg-primary text-primary-foreground ml-auto': isOwn,
-          'bg-secondary text-secondary-foreground mr-auto': !isOwn,
-        })}
+        className={cn(
+          'rounded-xl p-1.5 max-w-[75%] md:max-w-[60%] bg-amber-600',
+          {
+            'bg-primary text-primary-foreground ml-auto': isOwn,
+            'bg-accent text-accent-foreground mr-auto': !isOwn,
+            'max-w-2xs md:max-w-sm': message.files && message.files.length > 0,
+          }
+        )}
       >
         {message.files && message.files.length > 0 && (
           <FilePreview files={message.files} />

@@ -5,9 +5,9 @@ import { Separator } from '@/components/ui/separator';
 import { useChatSidebar } from '@/context/chat-sidebar-context';
 import { useChat } from '@/hooks/use-chat';
 import { cn } from '@/lib/utils';
-import { Forward, LogOut, Users } from 'lucide-react';
-import ChatSidebarToggle from './chat-sidebar-toggle';
+import { LogOut, Share, Users } from 'lucide-react';
 import Overlay from '../custom ui/overlay';
+import ChatSidebarToggle from './chat-sidebar-toggle';
 import UserList from './user-list';
 
 export default function ChatSidebar() {
@@ -49,10 +49,10 @@ export default function ChatSidebar() {
           <div className='mt-4 space-y-2 p-4'>
             <Button
               variant='outline'
-              className='w-full text-sm bg-sidebar-accent'
+              className='w-full text-sm shadow-none bg-background hover:bg-accent/90 dark:bg-sidebar-accent dark:hover:bg-sidebar-accent/80'
               // onClick={handleShareRoom}
             >
-              <Forward className='size-4' />
+              <Share className='size-4' />
               <span>Share Room</span>
             </Button>
             <Button

@@ -1,13 +1,13 @@
-import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
-import { File } from 'lucide-react';
 import { type File as FileType } from '@/types';
+import { File } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 
 interface FilePreviewProps {
   files: FileType[];
@@ -39,7 +39,7 @@ export default function FilePreview({ files }: FilePreviewProps) {
                   )}
                   {file.type.startsWith('video/') && (
                     <video
-                      className='rounded-md w-full max-h-52 '
+                      className='rounded-md w-full h-full max-h-52'
                       src={file.url}
                       muted
                       playsInline
@@ -48,15 +48,17 @@ export default function FilePreview({ files }: FilePreviewProps) {
                   )}
                 </div>
               </DialogTrigger>
-              <DialogContent className='p-0  overflow-hidden border-none'>
-                <DialogHeader hidden>Image preview</DialogHeader>
+              <DialogContent className='p-0 overflow-y-auto border-none max-h-[calc(100vh-64px)]'>
+                <DialogTitle className='absolute text-center hidden'>
+                  {file.name}
+                </DialogTitle>
                 {file.type.startsWith('image/') && (
                   <Image
                     src={file.url}
                     alt={file.name}
-                    width={300}
-                    height={200}
-                    className='rounded-md w-full object-cover aspect-square'
+                    width={2000}
+                    height={1200}
+                    className='rounded-md w-full h-auto'
                   />
                 )}
                 {file.type.startsWith('video/') && (
@@ -74,9 +76,14 @@ export default function FilePreview({ files }: FilePreviewProps) {
 
         if (file.type.startsWith('audio/')) {
           return (
-            <div key={index} className='rounded-md bg-secondary p-2'>
-              <p className='text-xs font-medium mb-1'>{file.name}</p>
-              <audio controls className='w-full rounded-md'>
+            <div
+              key={index}
+              className='rounded-md bg-accent p-2 overflow-hidden'
+            >
+              <p className='text-xs text-accent-foreground font-medium mb-1'>
+                {file.name}
+              </p>
+              <audio controls className='rounded-md w-full'>
                 <source src={file.url} type={file.type} />
                 Your browser does not support the audio element.
               </audio>

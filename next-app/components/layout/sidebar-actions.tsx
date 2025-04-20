@@ -12,7 +12,8 @@ export default function SidebarActions() {
       <JoinRoomDialog>
         <SidebarMenuItem>
           <SidebarMenuButton
-            className='bg-sidebar-accent hover:bg-sidebar-accent/80 rounded-3xl'
+            variant='outline'
+            className='bg-background hover:bg-accent/90 dark:bg-sidebar-accent dark:hover:bg-sidebar-accent/80 rounded-3xl border'
             tooltip='Join room'
           >
             <LogIn className='size-4' />
@@ -23,7 +24,7 @@ export default function SidebarActions() {
       <CreateRoomDialog>
         <SidebarMenuItem>
           <SidebarMenuButton
-            className='bg-sidebar-primary text-sidebar-primary-foreground hover:text-sidebar-primary-foreground hover:bg-sidebar-primary/90 active:bg-sidebar-primary active:text-sidebar-primary-foreground rounded-3xl'
+            className='bg-sidebar-primary text-sidebar-primary-foreground hover:text-sidebar-primary-foreground hover:bg-sidebar-primary/90 active:bg-sidebar-primary active:text-sidebar-primary-foreground rounded-3xl shadow-sm'
             tooltip='Create room'
           >
             <PlusCircle className='size-4' />

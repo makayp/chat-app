@@ -22,7 +22,7 @@ export default function ChatHeader() {
   );
 
   return (
-    <header className='sticky top-0 z-10 min-h-14 bg-background/80 backdrop-blur-lg'>
+    <header className='sticky top-0 z-5 min-h-14 bg-background/80 backdrop-blur-lg'>
       <div className='flex items-center justify-between gap-4 h-full px-3'>
         <div className='flex items-center overflow-hidden'>
           <SidebarTrigger size='lg' className='mr-2' />

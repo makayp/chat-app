@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import { ChatRoom } from '@/types';
 import { Copy, LogOut, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
@@ -12,8 +13,8 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '../ui/sidebar';
-import { cn } from '@/lib/utils';
 
 export default function RoomItem({
   room,
@@ -24,6 +25,7 @@ export default function RoomItem({
   isMobile: boolean;
   isActiveRoom: boolean;
 }) {
+  const { setOpenMobile } = useSidebar();
   return (
     <SidebarMenuItem
       key={room.id}
@@ -31,7 +33,7 @@ export default function RoomItem({
         'bg-sidebar-accent/80 rounded-md': isActiveRoom,
       })}
     >
-      <SidebarMenuButton asChild>
+      <SidebarMenuButton asChild onClick={() => setOpenMobile(false)}>
         <Link href={`/c/${room.id}`}>
           <span>{room.name}</span>
         </Link>

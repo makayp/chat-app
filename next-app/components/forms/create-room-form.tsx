@@ -7,6 +7,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Switch } from '../ui/switch';
 import FormError from './form-error';
+import { cn } from '@/lib/utils';
 
 const initialErrorState = {
   roomName: '',
@@ -14,7 +15,13 @@ const initialErrorState = {
   server: '',
 };
 
-export default function CreateRoomForm() {
+export default function CreateRoomForm({
+  onCreate = () => {},
+  className,
+}: {
+  onCreate?: () => void;
+  className?: string;
+}) {
   const [formError, setFormError] = useState(initialErrorState);
   const [isPrivate, setIsPrivate] = useState(false);
 
@@ -88,7 +95,8 @@ export default function CreateRoomForm() {
         return;
       }
 
-      router.push(`/chat/${room.id}`);
+      router.push(`/c/${room.id}`);
+      onCreate();
     } catch (error) {
       console.error('Error creating room:', error);
       setFormError((error) => ({
@@ -102,11 +110,11 @@ export default function CreateRoomForm() {
 
   return (
     <form onSubmit={handleCreateRoom}>
-      <div className='flex flex-col items-center gap-4 w-full'>
+      <div className={cn('flex flex-col items-center gap-4 w-full', className)}>
         <div className='text-left w-full'>
           <div className='flex items-center gap-2 mb-2 w-fit ml-auto'>
-            <label htmlFor='isPrivate' className='text-sm'>
-              Private Room (Password Protected)
+            <label htmlFor='isPrivate' className='text-sm text-foreground/90'>
+              Require password
             </label>
             <Switch
               id='isPrivate'
@@ -127,6 +135,7 @@ export default function CreateRoomForm() {
           <Input
             type='text'
             name='roomName'
+            autoFocus
             disabled={isSubmitting}
             value={roomName}
             aria-invalid={!!formError.roomName}

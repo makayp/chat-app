@@ -25,11 +25,11 @@ export default function MessageList({
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView();
-  }, [messages]);
+  }, [messages, typingUsers]);
 
   return (
-    <div className={cn('flex-1 px-4 py-12', className)}>
-      {messages.length === 0 ? (
+    <div className={cn('flex-1 px-4 py-8', className)}>
+      {messages.length === 0 && typingUsers.length === 0 ? (
         <div className='flex h-full items-center justify-center'>
           <p className='text-muted-foreground text-center'>
             No messages yet. Start the conversation!
@@ -52,7 +52,7 @@ export default function MessageList({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className='flex flex-col ml-3 mb-4 mt-12'
+              className='flex flex-col ml-3 mb-4 mt-12k'
             >
               <span className='text-xs text-muted-foreground'>
                 {typingUsers.length === 1

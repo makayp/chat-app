@@ -10,19 +10,21 @@ export default function MessageInput() {
 
   const {
     sendMessage,
-    // sendTypingIndicator,
+    setTyping,
     pendingFiles,
     addPendingFile,
     removePendingFile,
   } = useChat();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Handle sending a message
   const handleSendMessage = () => {
     if (message.trim() || pendingFiles.length > 0) {
       sendMessage(message);
       setMessage('');
+      setTyping(false);
 
       // Focus back on textarea after sending
       setTimeout(() => {
@@ -54,25 +56,60 @@ export default function MessageInput() {
     }
   };
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      adjustHeight();
+    }
+  }, [message]);
+
+  const adjustHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${
+        textareaRef.current.scrollHeight + 0
+      }px`;
+    }
+  };
+
   // Send typing indicator when user is typing
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-
     if (message.trim()) {
-      // sendTypingIndicator();
+      // Prevent multiple timeouts from being set
+      // Prevent the typing indicator from being sent multiple times
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      } else {
+        setTyping(true);
+      }
 
-      // Clear previous timeout
-      // clearTimeout(timeout);
-
-      // Set new timeout to avoid sending too many typing events
-      timeout = setTimeout(() => {
-        // This would be triggered after user stops typing for 3 seconds
-        // But our mock implementation already handles this
-      }, 3000);
+      // Set new timeout to clear typing indicator
+      timeoutRef.current = setTimeout(() => {
+        setTyping(false);
+        timeoutRef.current = null;
+      }, 1000 * 5);
+    } else {
+      // If the message is empty, clear the typing indicator
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     }
 
-    return () => clearTimeout(timeout);
-  }, [message]);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [message, setTyping]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        setTyping(false);
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [setTyping]);
 
   return (
     <div className='sticky bottom-0'>
@@ -127,7 +164,8 @@ export default function MessageInput() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              className='min-h-10 max-h-[40dvh] py-2 resize-none rounded-3xl ring ring-ring/50'
+              rows={1}
+              className='min-h-10 max-h-[40dvh] resize-none rounded-3xl ring ring-ring/50 text-sm'
               autoFocus
             />
 

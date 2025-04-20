@@ -1,12 +1,12 @@
 'use client';
 
-import clsx from 'clsx';
+import { useChat } from '@/hooks/use-chat';
+import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import FormError from './form-error';
-import { useChat } from '@/hooks/use-chat';
 
 const initialErrorState = {
   roomId: '',
@@ -16,9 +16,11 @@ const initialErrorState = {
 
 export default function JoinRoomForm({
   roomId,
+  onJoin = () => {},
   className,
 }: {
   roomId?: string | null;
+  onJoin?: () => void;
   className?: string;
 }) {
   const [input, setInput] = useState({
@@ -98,7 +100,8 @@ export default function JoinRoomForm({
     try {
       await joinRoom(roomIdInput.trim(), passwordRequired ? passwordInput : '');
 
-      router.push(`/chat/${roomIdInput}`);
+      router.push(`/c/${roomIdInput}`);
+      onJoin();
     } catch (error: unknown) {
       if (error instanceof Error) {
         if (error.message === 'Password required') {
@@ -117,9 +120,7 @@ export default function JoinRoomForm({
 
   return (
     <form onSubmit={handleJoinRoom}>
-      <div
-        className={clsx('flex flex-col items-center gap-4 w-full', className)}
-      >
+      <div className={cn('flex flex-col items-center gap-4 w-full', className)}>
         <Input
           type='text'
           name='roomIdInput'
