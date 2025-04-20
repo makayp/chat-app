@@ -19,20 +19,20 @@ export default async function Layout({
 
   return (
     <UserProvider>
-      <ChatProvider>
-        <WebSocketProvider>
+      <WebSocketProvider>
+        <ChatProvider>
           <SidebarProvider defaultOpen={defaultOpen}>
             <ChatSidebarProvider>
               <SidebarLeft />
-              <SidebarInset>
-                {/* <ConnectionBanner /> */}
+              <SidebarInset className='overflow-hidden'>
+                <ConnectionBanner />
                 {children}
               </SidebarInset>
               <ChatSidebar />
             </ChatSidebarProvider>
           </SidebarProvider>
-        </WebSocketProvider>
-      </ChatProvider>
+        </ChatProvider>
+      </WebSocketProvider>
     </UserProvider>
   );
 }

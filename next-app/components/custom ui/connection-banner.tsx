@@ -8,11 +8,10 @@ import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 
 export default function ConnectionBanner() {
-  const { connection } = useChat();
+  const { connect, connection } = useChat();
   const [showSuccessBanner, setShowSuccessBanner] = useState(false);
 
   const {
-    connect,
     isConnected,
     error: connectionError,
     willReconnect,

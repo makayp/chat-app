@@ -5,18 +5,11 @@ import { ChatRoom, Message, User } from '@/types';
 import { useCallback } from 'react';
 
 export function useChat() {
-  const { state, dispatch } = useChatContext();
-  const { userId } = useAuth();
+  const { chatState, dispatch, createRoom, joinRoom, sendMessage, setTyping } =
+    useChatContext();
 
-  // Initialize WebSocket connection and get methods
-  const {
-    connect,
-    disconnect,
-    joinRoom,
-    createRoom,
-    sendMessage,
-    markMessageAsRead,
-  } = useWebSocket();
+  const { connect, disconnect, connectionState } = useWebSocket();
+  const { userId } = useAuth();
 
   // Set active room
   const setActiveRoomId = useCallback(
@@ -31,39 +24,41 @@ export function useChat() {
 
   // Helper function to get active room data
   const getActiveRoom = useCallback((): ChatRoom | null => {
-    if (!state.activeRoomId) return null;
-    return state.rooms.find((room) => room.id === state.activeRoomId) || null;
-  }, [state.activeRoomId, state.rooms]);
+    if (!chatState.activeRoomId) return null;
+    return (
+      chatState.rooms.find((room) => room.id === chatState.activeRoomId) || null
+    );
+  }, [chatState.activeRoomId, chatState.rooms]);
 
   // Helper function to get active room messages
   const getActiveRoomMessages = useCallback((): Message[] => {
-    if (!state.activeRoomId) return [];
-    return state.messages[state.activeRoomId] || [];
-  }, [state.activeRoomId, state.messages]);
+    if (!chatState.activeRoomId) return [];
+    return chatState.messages[chatState.activeRoomId] || [];
+  }, [chatState.activeRoomId, chatState.messages]);
 
   // Helper function to get active room users
   const getActiveRoomUsers = useCallback((): User[] => {
-    if (!state.activeRoomId) return [];
-    return state.users[state.activeRoomId] || [];
-  }, [state.activeRoomId, state.users]);
+    if (!chatState.activeRoomId) return [];
+    return chatState.users[chatState.activeRoomId] || [];
+  }, [chatState.activeRoomId, chatState.users]);
 
   // Helper function to get typing users in active room
   const getTypingUsers = useCallback((): User[] => {
-    if (!state.activeRoomId) return [];
+    if (!chatState.activeRoomId) return [];
 
-    const typingUserIds = state.typingUsers[state.activeRoomId] || [];
-    const roomUsers = state.users[state.activeRoomId] || [];
+    const typingUserIds = chatState.typingUsers[chatState.activeRoomId] || [];
+    const roomUsers = chatState.users[chatState.activeRoomId] || [];
 
     return roomUsers.filter(
       (user) => typingUserIds.includes(user.id) && user.id !== userId
     );
-  }, [state.activeRoomId, state.typingUsers, state.users, userId]);
+  }, [chatState.activeRoomId, chatState.typingUsers, chatState.users, userId]);
 
   // Helper function to get pending files in active room
   const getPendingFiles = useCallback((): File[] => {
-    if (!state.activeRoomId) return [];
-    return state.pendingFiles[state.activeRoomId] || [];
-  }, [state.activeRoomId, state.pendingFiles]);
+    if (!chatState.activeRoomId) return [];
+    return chatState.pendingFiles[chatState.activeRoomId] || [];
+  }, [chatState.activeRoomId, chatState.pendingFiles]);
 
   // Add pending file
   const addPendingFile = useCallback(
@@ -96,11 +91,11 @@ export function useChat() {
 
   return {
     // Connection State
-    connection: { ...state.connection, connect, disconnect },
+    connection: connectionState,
 
     // Room state
-    rooms: state.rooms,
-    activeRoomId: state.activeRoomId,
+    rooms: chatState.rooms,
+    activeRoomId: chatState.activeRoomId,
     activeRoom: getActiveRoom(),
     messages: getActiveRoomMessages(),
     users: getActiveRoomUsers(),
@@ -117,6 +112,6 @@ export function useChat() {
     addPendingFile,
     removePendingFile,
     clearPendingFiles,
-    markMessageAsRead,
+    setTyping,
   };
 }

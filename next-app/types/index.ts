@@ -5,6 +5,12 @@ export type MessageStatus =
   | 'read'
   | 'failed';
 
+export type File = {
+  name: string;
+  url: string;
+  type: string;
+};
+
 export interface Message {
   id: string;
   to: string;
@@ -12,11 +18,7 @@ export interface Message {
   content: string;
   timestamp: number;
   status: MessageStatus;
-  files?: Array<{
-    name: string;
-    url: string;
-    type: string;
-  }>;
+  files?: File[];
   role: 'user' | 'system';
 }
 
