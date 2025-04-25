@@ -20,7 +20,7 @@ export default function CreateRoomDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className='text-center max-w-md sm:max-w-md'>
+      <DialogContent className='text-center sm:max-w-md'>
         <DialogHeader className='mt-5'>
           <DialogTitle className='text-center font-medium'>
             Create a Room

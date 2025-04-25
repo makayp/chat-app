@@ -10,16 +10,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
+import { useRouter } from 'next/navigation';
 
 export default function JoinRoomDialog({
+  roomId,
   children,
 }: {
+  roomId?: string;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(!!roomId);
+  const router = useRouter();
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        setOpen(open);
+        if (roomId) {
+          router.push(window.location.pathname);
+        }
+      }}
+    >
       <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent className='text-center sm:max-w-md'>
@@ -32,7 +44,7 @@ export default function JoinRoomDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <JoinRoomForm onJoin={() => setOpen(false)} />
+        <JoinRoomForm onJoin={() => setOpen(false)} roomId={roomId} />
       </DialogContent>
     </Dialog>
   );
