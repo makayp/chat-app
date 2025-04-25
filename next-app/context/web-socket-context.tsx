@@ -1,5 +1,5 @@
 'use client';
-import { clientConfig } from '@/lib/constants.client';
+import { ClientConstants } from '@/lib/constants.client';
 import { ConnectionState } from '@/types';
 import {
   createContext,
@@ -45,7 +45,7 @@ export default function WebSocketProvider({
 
   const socket = ws.current;
 
-  const url = clientConfig.wsUrl;
+  const url = ClientConstants.WS_URL;
 
   const init = useCallback(() => {
     const savedSession = localStorage.getItem('session');

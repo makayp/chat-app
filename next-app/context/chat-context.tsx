@@ -1,6 +1,6 @@
 'use client';
 
-import { clientConfig } from '@/lib/constants.client';
+import { ClientConstants } from '@/lib/constants.client';
 import { ChatRoom, Message, User } from '@/types';
 import {
   createContext,
@@ -30,7 +30,10 @@ export interface ChatState {
 type ChatAction =
   | { type: 'SET_ROOMS'; payload: ChatRoom[] }
   | { type: 'JOIN_ROOM'; payload: ChatRoom }
-  | { type: 'LEAVE_ROOM'; payload: string }
+  | {
+      type: 'LEAVE_ROOM';
+      payload: string;
+    }
   | { type: 'SET_ACTIVE_ROOM_ID'; payload: string | null }
   | { type: 'ADD_MESSAGE'; payload: Message }
   | {
@@ -54,7 +57,11 @@ type ChatAction =
     }
   | {
       type: 'SET_TYPING_USERS';
-      payload: { roomId: string; typingUsers: string[] };
+      payload: {
+        roomId: string;
+        userId: string;
+        isTyping: boolean;
+      };
     };
 
 interface ChatContextType {
@@ -68,6 +75,7 @@ interface ChatContextType {
   sendMessage: (content: string) => void;
   markMessageAsRead: (roomId: string, messageId: string) => void;
   setTyping: (isTyping: boolean) => void;
+  leaveRoom: (roomId: string) => Promise<void>;
 }
 
 const initialState: ChatState = {
@@ -121,7 +129,6 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
       }
       return {
         ...state,
-        activeRoomId: action.payload.id,
         rooms: updatedRooms,
         users: {
           ...state.users,
@@ -132,6 +139,7 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
           [action.payload.id]: action.payload.messages,
         },
       };
+
     case 'SET_ACTIVE_ROOM_ID':
       return {
         ...state,
@@ -168,7 +176,7 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
         },
       };
 
-    case 'UPDATE_MESSAGE':
+    case 'UPDATE_MESSAGE': {
       const { roomId, messageId, updates } = action.payload;
       const roomMessages = state.messages[roomId];
       const updatedRoomMessages = roomMessages.map((message) =>
@@ -178,9 +186,10 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
         ...state,
         messages: {
           ...state.messages,
-          [state.activeRoomId!]: updatedRoomMessages,
+          [roomId]: updatedRoomMessages,
         },
       };
+    }
 
     case 'ADD_PENDING_FILE':
       return {
@@ -223,6 +232,7 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
           [addUserRoomId]: [...(state.users[addUserRoomId] || []), user],
         },
       };
+
     case 'REMOVE_USER':
       const { roomId: removeUserRoomId, userId } = action.payload;
       return {
@@ -248,8 +258,21 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
         users: updatedUsers,
       };
 
-    case 'SET_TYPING_USERS':
-      const { roomId: typingRoomId, typingUsers } = action.payload;
+    case 'SET_TYPING_USERS': {
+      const { roomId: typingRoomId, userId, isTyping } = action.payload;
+      const typingUsers = state.typingUsers[typingRoomId] || [];
+
+      if (isTyping) {
+        if (!typingUsers.includes(userId)) {
+          typingUsers.push(userId);
+        }
+      } else {
+        const index = typingUsers.indexOf(userId);
+        if (index !== -1) {
+          typingUsers.splice(index, 1);
+        }
+      }
+
       return {
         ...state,
         typingUsers: {
@@ -257,7 +280,29 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
           [typingRoomId]: typingUsers,
         },
       };
+    }
 
+    case 'LEAVE_ROOM': {
+      const roomId = action.payload;
+      const updatedRoomList = state.rooms.filter((room) => room.id !== roomId);
+      const updatedMessages = { ...state.messages };
+      const updatedUsers = { ...state.users };
+      const updatedTypingUsers = { ...state.typingUsers };
+      const updatedPendingFiles = { ...state.pendingFiles };
+
+      delete updatedMessages[roomId];
+      delete updatedUsers[roomId];
+      delete updatedTypingUsers[roomId];
+      delete updatedPendingFiles[roomId];
+
+      return {
+        ...state,
+        rooms: updatedRoomList,
+        messages: updatedMessages,
+        users: updatedUsers,
+        activeRoomId: state.activeRoomId === roomId ? null : state.activeRoomId,
+      };
+    }
     default:
       return state;
   }
@@ -333,7 +378,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     });
 
     socket.on('user_joined', (data) => {
-      console.log('User joined:', data);
       dispatch({
         type: 'ADD_USER',
         payload: { roomId: data.roomId, user: data.user },
@@ -341,7 +385,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     });
 
     socket.on('user_left', (data) => {
-      console.log('User left:', data);
+      if (data.userId === userId) {
+        dispatch({ type: 'LEAVE_ROOM', payload: data.roomId });
+        return;
+      }
       dispatch({
         type: 'REMOVE_USER',
         payload: { roomId: data.roomId, userId: data.userId },
@@ -358,22 +405,24 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       });
     });
 
+    socket.on('room_created', (data) => {
+      dispatch({
+        type: 'JOIN_ROOM',
+        payload: data.room,
+      });
+    });
+
+    socket.on('room_joined', (data) => {
+      dispatch({
+        type: 'JOIN_ROOM',
+        payload: data.room,
+      });
+    });
+
     socket.on('typing', (data) => {
-      const { roomId, userId, isTyping } = data;
-      const typingUsers = chatState.typingUsers[roomId] || [];
-      if (isTyping) {
-        if (!typingUsers.includes(userId)) {
-          typingUsers.push(userId);
-        }
-      } else {
-        const index = typingUsers.indexOf(userId);
-        if (index !== -1) {
-          typingUsers.splice(index, 1);
-        }
-      }
       dispatch({
         type: 'SET_TYPING_USERS',
-        payload: { roomId, typingUsers },
+        payload: data,
       });
     });
 
@@ -386,7 +435,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       socket.off('user_status');
       socket.off('typing');
     };
-  }, [chatState.typingUsers, setConnectionState, socket, userId]);
+  }, [setConnectionState, socket, userId]);
 
   // Create a new room
   const createRoom = useCallback(
@@ -395,7 +444,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       password?: string
     ): Promise<ChatRoom | undefined> => {
       if (!socket || !socket.connected) {
-        throw new Error('Not connected to server');
+        toast.error('Not connected to server');
+        return Promise.reject(new Error('Not connected to server'));
       }
       return new Promise((resolve, reject) => {
         socket.emit(
@@ -420,7 +470,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const joinRoom = useCallback(
     async (roomId: string, password?: string): Promise<void> => {
       if (!socket || !socket.connected) {
-        throw new Error('Not connected to server');
+        toast.error('Not connected to server');
+        return Promise.reject(new Error('Not connected to server'));
       }
 
       return new Promise((resolve, reject) => {
@@ -499,7 +550,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         });
 
         try {
-          const res = await fetch(`${clientConfig.backendUrl}/api/upload`, {
+          const res = await fetch(`${ClientConstants.BACKEND_URL}/api/upload`, {
             method: 'POST',
             body: formData,
           });
@@ -514,7 +565,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           }));
         } catch (error) {
           console.error('File upload failed:', error);
-          toast.error('Failed to upload files');
+          if (error instanceof Error) {
+            toast.error(error.message);
+          }
           dispatch({
             type: 'UPDATE_MESSAGE',
             payload: {
@@ -615,6 +668,32 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     [socket, chatState.activeRoomId, userId]
   );
 
+  const leaveRoom = useCallback(
+    (roomId: string): Promise<void> => {
+      if (!socket || !socket.connected) {
+        toast.error('Not connected to server');
+        return Promise.reject(new Error('Not connected to server'));
+      }
+
+      return new Promise((resolve, reject) => {
+        socket.emit(
+          'leave_room',
+          roomId,
+          (response: { success: boolean; error?: string }) => {
+            if (response.success) {
+              dispatch({ type: 'LEAVE_ROOM', payload: roomId });
+              resolve();
+            } else {
+              toast.error(response.error || 'Failed to leave room');
+              reject(new Error(response.error || 'Failed to leave room'));
+            }
+          }
+        );
+      });
+    },
+    [socket]
+  );
+
   const value = {
     chatState,
     dispatch,
@@ -623,6 +702,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     sendMessage,
     markMessageAsRead,
     setTyping,
+    leaveRoom,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

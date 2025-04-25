@@ -5,8 +5,15 @@ import { ChatRoom, Message, User } from '@/types';
 import { useCallback } from 'react';
 
 export function useChat() {
-  const { chatState, dispatch, createRoom, joinRoom, sendMessage, setTyping } =
-    useChatContext();
+  const {
+    chatState,
+    dispatch,
+    createRoom,
+    joinRoom,
+    sendMessage,
+    setTyping,
+    leaveRoom,
+  } = useChatContext();
 
   const { connect, disconnect, connectionState } = useWebSocket();
   const { userId } = useAuth();
@@ -113,5 +120,6 @@ export function useChat() {
     removePendingFile,
     clearPendingFiles,
     setTyping,
+    leaveRoom,
   };
 }
