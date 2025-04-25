@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import { ChatRoom } from '@/types';
 import { Copy, LogOut, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,7 @@ export default function RoomItem({
   isActiveRoom: boolean;
 }) {
   const { setOpenMobile } = useSidebar();
+
   return (
     <SidebarMenuItem
       key={room.id}
@@ -55,16 +57,18 @@ export default function RoomItem({
               navigator.clipboard.writeText(
                 `${window.location.origin}/c/${room.id}`
               );
+              toast.success('Room link copied');
             }}
           >
             <Copy className='text-muted-foreground' />
             <span>Copy Room Link</span>
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut className='text-destructive' />
-            <span className='text-destructive'>Leave Room</span>
-          </DropdownMenuItem>
+          {/* <DropdownMenuSeparator /> */}
+
+          {/* <DropdownMenuItem>
+            <LogOut className='size-4' />
+            <span>Leave Room</span>
+          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </SidebarMenuItem>

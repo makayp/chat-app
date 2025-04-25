@@ -5,10 +5,12 @@ import { Separator } from '@/components/ui/separator';
 import { useChatSidebar } from '@/context/chat-sidebar-context';
 import { useChat } from '@/hooks/use-chat';
 import { cn } from '@/lib/utils';
-import { LogOut, Share, Users } from 'lucide-react';
+import { Share, Users } from 'lucide-react';
+import LeaveRoomButton from '../custom ui/leave-room-button';
 import Overlay from '../custom ui/overlay';
 import ChatSidebarToggle from './chat-sidebar-toggle';
 import UserList from './user-list';
+import { ShareDialog } from '../custom ui/share-dialog';
 
 export default function ChatSidebar() {
   const { activeRoomId } = useChat();
@@ -47,22 +49,17 @@ export default function ChatSidebar() {
 
           {/* Footer */}
           <div className='mt-4 space-y-2 p-4'>
-            <Button
-              variant='outline'
-              className='w-full text-sm shadow-none bg-background hover:bg-accent/90 dark:bg-sidebar-accent dark:hover:bg-sidebar-accent/80'
-              // onClick={handleShareRoom}
-            >
-              <Share className='size-4' />
-              <span>Share Room</span>
-            </Button>
-            <Button
-              variant='destructive'
-              className='w-full text-sm'
-              // onClick={handleLeaveRoom}
-            >
-              <LogOut className='size-4' />
-              <span>Leave Room</span>
-            </Button>
+            <ShareDialog>
+              <Button
+                variant='outline'
+                className='w-full text-sm shadow-nonef bg-background hover:bg-accent dark:bg-sidebar-accent dark:hover:bg-sidebar-accent/80'
+              >
+                <Share className='size-4' />
+                <span>Share Room</span>
+              </Button>
+            </ShareDialog>
+
+            <LeaveRoomButton roomId={activeRoomId} />
           </div>
         </div>
       </aside>

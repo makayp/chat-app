@@ -2,13 +2,15 @@
 
 import { Button } from '@/components/ui/button';
 import { useChat } from '@/hooks/use-chat';
+import { AlignLeft } from 'lucide-react';
 import Link from 'next/link';
-import { Separator } from '../ui/separator';
-import { SidebarTrigger } from '../ui/sidebar';
 import ChatSidebarToggle from '../layout/chat-sidebar-toggle';
+import { Separator } from '../ui/separator';
+import { SidebarTrigger, useSidebar } from '../ui/sidebar';
 
 export default function ChatHeader() {
   const { activeRoom, setActiveRoomId, users } = useChat();
+  const { toggleSidebar } = useSidebar();
 
   const [userCount, onlineCount] = users.reduce(
     ([userCount, onlineCount], user) => {
@@ -25,11 +27,25 @@ export default function ChatHeader() {
     <header className='sticky top-0 z-5 min-h-14 bg-background/80 backdrop-blur-lg'>
       <div className='flex items-center justify-between gap-4 h-full px-3'>
         <div className='flex items-center overflow-hidden'>
-          <SidebarTrigger size='lg' className='mr-2' />
+          <SidebarTrigger
+            size='lg'
+            className='mr-2 hidden md:flex [&_svg]:size-4.5!'
+          />
+
+          <Button
+            variant='ghost'
+            size='icon'
+            className='mr-2 md:hidden'
+            onClick={toggleSidebar}
+          >
+            <AlignLeft className='size-5 text-muted-foreground ' />
+          </Button>
 
           {activeRoom && (
             <div className='flex flex-col overflow-hidden'>
-              <h1 className='font-medium truncate'>{activeRoom.name}</h1>
+              <h1 className='font-medium text-sm sm:text-base truncate'>
+                {activeRoom.name}
+              </h1>
               <p className='text-xs text-muted-foreground'>
                 Members: {userCount}, Online: {onlineCount}
               </p>
@@ -41,9 +57,9 @@ export default function ChatHeader() {
           <div className='flex items-center gap-1'>
             <Link href='/' onNavigate={() => setActiveRoomId(null)}>
               <Button
-                variant='secondary'
+                variant='outline'
                 size='sm'
-                className='text-sm h-8 hidden sm:flex'
+                className='text-sm scale-90 md:scale-100 h-8'
               >
                 Close
               </Button>

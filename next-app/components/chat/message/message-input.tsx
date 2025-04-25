@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useChat } from '@/hooks/use-chat';
+import { ClientConstants } from '@/lib/constants.client';
 import { Plus, SendHorizonal, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function MessageInput() {
   const [message, setMessage] = useState('');
@@ -22,9 +24,9 @@ export default function MessageInput() {
   // Handle sending a message
   const handleSendMessage = () => {
     if (message.trim() || pendingFiles.length > 0) {
+      setTyping(false);
       sendMessage(message);
       setMessage('');
-      setTyping(false);
 
       // Focus back on textarea after sending
       setTimeout(() => {
@@ -37,7 +39,19 @@ export default function MessageInput() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
+      const { MAX_FILE_SIZE, ALLOWED_FILE_TYPES } = ClientConstants;
+
       Array.from(files).forEach((file) => {
+        if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+          toast.error('Only PNG, JPEG, and PDF files are allowed.');
+          return;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+          toast.error('File size exceeds the limit of 5MB.');
+          return;
+        }
+
         addPendingFile(file);
       });
     }
@@ -92,6 +106,7 @@ export default function MessageInput() {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
+        setTyping(false);
       }
     }
 

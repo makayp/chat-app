@@ -2,10 +2,12 @@
 
 import { useAuth } from '@/context/auth-context';
 import { useChat } from '@/hooks/use-chat';
+import { ClientConstants } from '@/lib/constants.client';
 import { cn } from '@/lib/utils';
 import { Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import ChatHeader from './chat-header';
 import MessageInput from './message/message-input';
 import MessageList from './message/message-list';
@@ -25,52 +27,48 @@ export default function ChatRoom({ roomId }: { roomId: string }) {
     typingUsers,
     addPendingFile,
     setActiveRoomId,
-    joinRoom,
   } = useChat();
 
   const { isInitialConnect, isConnecting, isConnected } = connection;
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
-    if (!isConnected || isConnecting) return;
+    if (isInitialConnect) return;
 
     const isInRoom = rooms.some((room) => room.id === roomId);
 
     if (!isInRoom) {
-      joinRoom(roomId).catch((error) => {
-        if (error instanceof Error) {
-          if (error.message === 'Password required') {
-            router.push(`/c/${roomId}?password-required=true`);
-            return;
-          }
-        }
-
-        router.push('/');
-      });
+      if (!isInitialLoad.current) router.push('/');
+      else router.push(`/?roomId=${roomId}`);
       return;
     }
 
-    // Set as active room
     if (activeRoomId !== roomId) {
       setActiveRoomId(roomId);
+      isInitialLoad.current = false;
     }
-  }, [
-    activeRoomId,
-    isConnected,
-    isConnecting,
-    joinRoom,
-    roomId,
-    rooms,
-    router,
-    setActiveRoomId,
-  ]);
+  }, [activeRoomId, isInitialConnect, roomId, rooms, router, setActiveRoomId]);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
 
+    const { MAX_FILE_SIZE, ALLOWED_FILE_TYPES } = ClientConstants;
+
     // Process dropped files
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       Array.from(e.dataTransfer.files).forEach((file) => {
+        // Check if the file type is allowed;
+        if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+          toast.error('Only PNG, JPEG, and PDF files are allowed.');
+          return;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+          toast.error('File size exceeds the limit of 5MB.');
+          return;
+        }
+
         addPendingFile(file);
       });
     }

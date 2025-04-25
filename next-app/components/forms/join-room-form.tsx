@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import FormError from './form-error';
+import { Pencil } from 'lucide-react';
 
 const initialErrorState = {
   roomId: '',
@@ -35,6 +36,7 @@ export default function JoinRoomForm({
   const { roomIdInput, passwordInput } = input;
   const [formError, setFormError] = useState(initialErrorState);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [roomIdInputDisabled, setRoomIdInputDisabled] = useState(!!roomId);
 
   const invalidRoomId =
     roomIdInput.length === 0
@@ -106,6 +108,7 @@ export default function JoinRoomForm({
       if (error instanceof Error) {
         if (error.message === 'Password required') {
           setPasswordRequired(true);
+          setRoomIdInputDisabled(true);
         }
 
         setFormError((prev) => ({
@@ -121,17 +124,32 @@ export default function JoinRoomForm({
   return (
     <form onSubmit={handleJoinRoom}>
       <div className={cn('flex flex-col items-center gap-4 w-full', className)}>
-        <Input
-          type='text'
-          name='roomIdInput'
-          autoComplete='room-id'
-          autoFocus
-          value={roomIdInput}
-          disabled={isSubmitting}
-          aria-invalid={!!formError.roomId}
-          onChange={handleInputChange}
-          placeholder='Room ID'
-        />
+        <div className='w-full relative'>
+          <Input
+            type='text'
+            name='roomIdInput'
+            autoComplete='room-id'
+            autoFocus
+            value={roomIdInput}
+            disabled={isSubmitting || roomIdInputDisabled}
+            aria-invalid={!!formError.roomId}
+            onChange={handleInputChange}
+            placeholder='Room ID'
+            className='pr-10'
+          />
+          {roomIdInputDisabled && (
+            <Button
+              variant='ghost'
+              size='sm'
+              type='button'
+              onClick={() => setRoomIdInputDisabled(false)}
+              disabled={isSubmitting}
+              className='absolute top-1/2 right-0 transform -translate-y-1/2 p-0 text-xs text-foreground/70 hover:bg-transparent focus-visible:ring-0'
+            >
+              <Pencil className='size-4' />
+            </Button>
+          )}
+        </div>
 
         {passwordRequired && (
           <div className='relative w-full'>

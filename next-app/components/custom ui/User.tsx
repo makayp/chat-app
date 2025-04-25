@@ -37,7 +37,7 @@ export default function User() {
               {sidebarState === 'collapsed' && (
                 <span
                   className={clsx(
-                    'absolute right-0  bottom-0.5 size-2 bg-gray-300 rounded-full',
+                    'absolute right-0  bottom-0.5 size-2 bg-gray-300 rounded-full hidden md:flex',
                     {
                       'bg-green-500': isConnected,
                       'bg-yellow-500': isConnecting,

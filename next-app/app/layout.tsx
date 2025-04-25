@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'react-hot-toast';
+import { Toaster as Sonner } from 'sonner';
 import { ThemeProvider } from '@/context/theme-provider';
 import './globals.css';
 
@@ -16,7 +17,9 @@ export default async function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body className='antialiased min-h-dvh flex flex-col'>
-        <Toaster />
+        <Toaster toastOptions={{ className: 'text-sm' }} />
+
+        <Sonner className='' position='top-center' />
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           {children}
         </ThemeProvider>
