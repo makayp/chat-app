@@ -54,10 +54,14 @@ export class RoomStore {
     status: MessageStatus
   ) {
     const room = this.rooms.get(roomId);
+
     const message = room?.messages.find((m) => m.id === messageId);
-    if (message) {
+
+    if (message && message.status !== status) {
       message.status = status;
+      return true;
     }
+    return false;
   }
 
   updateUsername(userId: string, newUsername: string): boolean {
@@ -92,6 +96,11 @@ export class RoomStore {
     });
   }
 
+  isUserInRoom(roomId: string, userId: string): boolean {
+    const room = this.rooms.get(roomId);
+    return room ? room.users.some((user) => user.id === userId) : false;
+  }
+
   getJoinedRooms(userId: string): Array<Omit<ChatRoom, 'password'>> {
     return Array.from(this.rooms.values())
       .filter((room) => room.users.some((u) => u.id === userId))
@@ -103,5 +112,3 @@ export class RoomStore {
     return sanitized;
   }
 }
-
-export const roomStore = new RoomStore();

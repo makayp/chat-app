@@ -1,13 +1,15 @@
 import { Server, Socket } from 'socket.io';
-import { roomStore } from '../store/RoomStore';
-import { ChatRoom, User } from './types';
-import { generateUUID } from '../utils/helper';
-import InMemorySessionStore from '../store/SessionStore';
+import { ChatRoom, User } from '../types';
+import { generateUUID } from '../../utils/helper';
+import PersistentSessionStore from '../../store/SessionStore';
+import { RoomStore } from '../../store/RoomStore';
+import { getUserSockets, joinUserSocketsToRoom } from '..';
 
 export function roomHandlers(
   io: Server,
   socket: Socket,
-  sessionStore: InMemorySessionStore
+  roomStore: RoomStore,
+  sessionStore: PersistentSessionStore
 ) {
   const { userId, username } = socket;
 
@@ -17,7 +19,7 @@ export function roomHandlers(
   socket.on('typing', handleTyping);
   socket.on('update_username', handleUsernameUpdate);
 
-  function handleJoinRoom(
+  async function handleJoinRoom(
     { roomId, password }: { roomId: string; password?: string },
     callback: (response: {
       error?: { type: string; message: string };
@@ -39,6 +41,11 @@ export function roomHandlers(
     }
 
     if (room.isPrivate && !roomStore.verifyPassword(roomId, password || '')) {
+      if (!password) {
+        return callback({
+          error: { type: 'password-required', message: 'Password required' },
+        });
+      }
       return callback({
         error: { type: 'invalid-password', message: 'Invalid password' },
       });
@@ -46,32 +53,41 @@ export function roomHandlers(
 
     const user = createUserState(userId, username);
     roomStore.addUserToRoom(roomId, user);
-    socket.join(roomId);
     callback({ room: roomStore.getRoom(roomId)! });
 
-    socket.to(roomId).emit('user_joined', user);
+    socket.to(roomId).emit('user_joined', { roomId, user });
+    socket.to(userId).emit('room_joined', {
+      room: roomStore.getRoom(roomId)!,
+    });
+
+    await joinUserSocketsToRoom(io, userId, room.id);
   }
 
-  function handleCreateRoom(
+  async function handleCreateRoom(
     { roomName, password }: { roomName: string; password?: string },
     callback: (response: { room: ChatRoom }) => void
   ) {
     const room = createRoom(roomName, userId, username, password);
     roomStore.setRoom(room);
-    socket.join(room.id);
-    callback({ room });
+    const { password: _, ...roomWithoutPassword } = room;
+    callback({ room: roomWithoutPassword });
+    socket.to(userId).emit('room_created', { room: roomWithoutPassword });
+    await joinUserSocketsToRoom(io, userId, room.id);
   }
 
-  function handleLeaveRoom(
+  async function handleLeaveRoom(
     roomId: string,
-    callback: (success: boolean) => void
+    callback: ({ success }: { success: boolean }) => void
   ) {
     const success = roomStore.removeUserFromRoom(roomId, userId);
     if (success) {
-      socket.leave(roomId);
-      socket.to(roomId).emit('user_left', { userId, username });
+      socket.to(roomId).emit('user_left', { roomId, userId });
+      const userSockets = await getUserSockets(io, userId);
+      for (const userSocket of userSockets) {
+        userSocket.leave(roomId);
+      }
     }
-    callback(success);
+    callback({ success });
   }
 
   function handleTyping({
@@ -82,7 +98,7 @@ export function roomHandlers(
     isTyping: boolean;
   }) {
     roomStore.updateUserStatus(roomId, userId, { isTyping });
-    socket.to(roomId).emit('typing', { userId, isTyping });
+    socket.to(roomId).emit('typing', { roomId, userId, isTyping });
   }
 
   function handleUsernameUpdate(

@@ -1,8 +1,8 @@
 import { Socket } from 'socket.io';
-import InMemorySessionStore from '../store/SessionStore';
-import { generateUUID } from '../utils/helper';
+import { generateUUID } from '../../utils/helper';
+import PersistentSessionStore from '../../store/SessionStore';
 
-export default function authMiddleware(sessionStore: InMemorySessionStore) {
+export default function authMiddleware(sessionStore: PersistentSessionStore) {
   return (socket: Socket, next: (err?: Error) => void) => {
     const { sessionId, username } = socket.handshake.auth;
 
@@ -21,6 +21,13 @@ export default function authMiddleware(sessionStore: InMemorySessionStore) {
     socket.sessionId = generateUUID();
     socket.userId = generateUUID();
     socket.username = username;
+
+    sessionStore.saveSession(socket.sessionId, {
+      userId: socket.userId,
+      username: socket.username,
+      isConnected: false,
+      lastActive: Date.now(),
+    });
     next();
   };
 }
