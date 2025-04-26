@@ -32,8 +32,9 @@ export default function FilePreview({ files }: FilePreviewProps) {
                     <Image
                       src={file.url}
                       alt={file.name}
-                      width={300}
-                      height={200}
+                      width={1500}
+                      height={800}
+                      priority
                       className='rounded-md'
                     />
                   )}
