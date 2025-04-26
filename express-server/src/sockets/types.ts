@@ -1,5 +1,3 @@
-import { Socket } from 'socket.io';
-
 export type MessageStatus =
   | 'sending'
   | 'sent'
