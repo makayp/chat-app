@@ -658,7 +658,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      console.log('Typing:', isTyping);
       socket.emit('typing', {
         roomId: chatState.activeRoomId,
         userId,

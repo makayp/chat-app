@@ -33,6 +33,12 @@ export default function ChatRoom({ roomId }: { roomId: string }) {
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
+    return () => {
+      setActiveRoomId(null);
+    };
+  }, [setActiveRoomId]);
+
+  useEffect(() => {
     if (isInitialConnect) return;
 
     const isInRoom = rooms.some((room) => room.id === roomId);
