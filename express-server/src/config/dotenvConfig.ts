@@ -10,6 +10,6 @@ export const config = {
   FRONTEND_URL: isProduction
     ? process.env.FRONTEND_URL
     : 'http://localhost:3000',
-  BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:8000',
+  BACKEND_URL: isProduction ? process.env.BACKEND_URL : 'http://localhost:8000',
   JWT_SECRET: process.env.JWT_SECRET,
 };
