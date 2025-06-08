@@ -26,7 +26,6 @@ export async function uploadMedia(req: Request, res: Response) {
 export async function getMedia(req: Request, res: Response) {
   const { filename } = req.params;
   const imagePath = path.join(__dirname, '../../uploads', filename);
-  console.log(imagePath);
 
   if (!fs.existsSync(imagePath)) {
     res.status(404).send('File not found');
